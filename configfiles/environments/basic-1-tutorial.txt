@@ -1,0 +1,94 @@
+width 12
+height 12
+
+nbAgents 1
+environment.world.agent.Agent
+nbArgs 5
+Integer 1
+Integer 1
+Integer 12
+Integer 1
+String "Alice"
+
+nbPackets 14
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 1
+Integer 5
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 1
+Integer 10
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 3
+Integer 4
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 4
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 4
+Integer 11
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 6
+Integer 3
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 5
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 7
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 10
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 10
+Integer 5
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 0
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 10
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 11
+String "blue"
+
+nbDestinations 1
+environment.world.destination.Destination
+nbArgs 3
+Integer 4
+Integer 1
+String "blue"
+
+nbWalls 0
+
+nbEnergyStations 0

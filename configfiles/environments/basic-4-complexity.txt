@@ -1,0 +1,193 @@
+width 10
+height 10
+
+nbAgents 1
+environment.world.agent.Agent
+nbArgs 5
+Integer 3
+Integer 0
+Integer 3
+Integer 6
+String "Alice"
+
+nbPackets 19
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 4
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 5
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 9
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 1
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 1
+Integer 9
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 4
+Integer 7
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 4
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 5
+Integer 7
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 5
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 0
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 1
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 4
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 9
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 0
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 1
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 9
+String "blue"
+
+nbDestinations 3
+environment.world.destination.Destination
+nbArgs 3
+Integer 3
+Integer 4
+String "green"
+environment.world.destination.Destination
+nbArgs 3
+Integer 4
+Integer 4
+String "blue"
+environment.world.destination.Destination
+nbArgs 3
+Integer 5
+Integer 4
+String "red"
+
+nbWalls 11
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 2
+Integer 2
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 2
+Integer 3
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 2
+Integer 4
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 2
+Integer 5
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 3
+Integer 5
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 4
+Integer 5
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 5
+Integer 5
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 6
+Integer 2
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 6
+Integer 3
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 6
+Integer 4
+environment.world.wall.SolidWall
+nbArgs 2
+Integer 6
+Integer 5
+
+nbEnergyStations 0
+
+nbPacketGenerators 2
+environment.world.generator.PacketGenerator
+nbArgs 6
+Integer 5
+Integer 9
+Integer 4
+String "green"
+Double 0.1000
+Integer 20
+environment.world.generator.PacketGenerator
+nbArgs 6
+Integer 9
+Integer 4
+Integer 3
+String "red"
+Integer 4
+Integer 30
+
+nbConveyors 0
