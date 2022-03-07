@@ -576,18 +576,16 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     public boolean seesDestination(Color color) {
         int vw = getPerception().getWidth();
         int vh = getPerception().getHeight();
-        if (hasCarry()) {
-            for (int i = 0; i < vw; i++) {
-                for (int j = 0; j < vh; j++) {
-                    var per = this.getPerception().getCellAt(i, j);
-                    if (per != null) {
-                        DestinationRep destRep = per.getRepOfType(DestinationRep.class);
-                        if (destRep != null) {
-                            return Optional.ofNullable(color).map(c -> destRep.getColor().equals(c)).orElse(true);
-                        }
+        for (int i = 0; i < vw; i++) {
+            for (int j = 0; j < vh; j++) {
+                var per = this.getPerception().getCellAt(i, j);
+                if (per != null) {
+                    DestinationRep destRep = per.getRepOfType(DestinationRep.class);
+                    if (destRep != null && Optional.ofNullable(color).map(c -> destRep.getColor().equals(c)).orElse(true)) {
+                        return true;
                     }
-
                 }
+
             }
         }
         return false;
@@ -621,8 +619,8 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
                 var per = this.getPerception().getCellAt(i, j);
                 if (per != null) {
                     PacketRep p = per.getRepOfType(PacketRep.class);
-                    if (p != null) {
-                        return Optional.ofNullable(color).map(c -> p.getColor().equals(c)).orElse(true);
+                    if (p != null && Optional.ofNullable(color).map(c -> p.getColor().equals(c)).orElse(true)) {
+                        return true;
                     }
                 }
             }
