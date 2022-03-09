@@ -15,7 +15,7 @@ import environment.Coordinate;
 import environment.world.packet.Packet;
 
 
-public class Basic extends Behavior {
+public class Deliver extends Behavior {
     Random rand = new Random(42);
 
     @Override
@@ -34,41 +34,32 @@ public class Basic extends Behavior {
                 new Coordinate(1, -1), new Coordinate(-1, 1)
         ));
 
-        // Shuffle moves randomly
-        Collections.shuffle(moves, rand);
-
         var perception = agentState.getPerception();
 
-        if (agentState.hasCarry()){
-            // Check for a neighbouring destination for packet
-            Packet packet = agentState.getCarry().orElse(null);
-            Color packet_color = null;
-            if(packet != null){
-                packet_color = packet.getColor();
-            }
 
-            for (var move : moves) {
+        // Check for a neighbouring destination for the packet
+        Packet packet = agentState.getCarry().orElse(null);
+        Color packet_color = null;
+        if(packet != null){
+            packet_color = packet.getColor();
+        }
 
-                int x = move.getX() + agentState.getX();
-                int y = move.getY() + agentState.getY();
-                if (perception.getCellPerceptionOnAbsPos(x, y) != null
-                        && perception.getCellPerceptionOnAbsPos(x, y).containsDestination(packet_color)){
-                    agentAction.putPacket(x, y);
-                    return;
-                }
-            }
-        }else{
-            // Check for a neighbouring packet
-            for (var move : moves) {
-                int x = move.getX() + agentState.getX();
-                int y = move.getY() + agentState.getY();
-                if (perception.getCellPerceptionOnAbsPos(x, y) != null
-                        && perception.getCellPerceptionOnAbsPos(x, y).containsPacket()){
-                    agentAction.pickPacket(x, y);
-                    return;
-                }
+        for (var move : moves) {
+
+            int x = move.getX() + agentState.getX();
+            int y = move.getY() + agentState.getY();
+            if (perception.getCellPerceptionOnAbsPos(x, y) != null
+                    && perception.getCellPerceptionOnAbsPos(x, y).containsDestination(packet_color)){
+                agentAction.putPacket(x, y);
+                return;
             }
         }
+
+
+        // If a packet can not be dropped, the agent moves instead
+
+        // Shuffle moves randomly
+        Collections.shuffle(moves, rand);
 
         // Check for viable moves
         for (var move : moves) {
