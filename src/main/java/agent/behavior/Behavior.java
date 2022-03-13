@@ -5,6 +5,9 @@ import agent.AgentCommunication;
 import agent.AgentImp;
 import agent.AgentState;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class represents a role for an agent. It contains the actions the agent
  * does when playing this role.
@@ -15,7 +18,10 @@ abstract public class Behavior {
     private String description;
     private boolean closing = false;
 
-    
+    //memoryKeys
+    protected String destination = "des";
+    protected String dropOff = "dof";
+    protected String rightEdge = "rw";
 
     protected Behavior() {}
 
@@ -30,8 +36,6 @@ abstract public class Behavior {
      * This method handles the actions of the behavior that are action related
      */
     public abstract void act(AgentState agentState, AgentAction agentAction);
-
-
 
 
     /**
@@ -119,5 +123,31 @@ abstract public class Behavior {
         }
         closing = true;
         description = null;
+    }
+
+
+    protected boolean aboutToHitAWall(AgentState agent){
+        boolean goingToTheRight = (agent.getY()-1)/2 % 2 == 0;
+        if (goingToTheRight) {
+            String rightEdgeX = agent.getMemoryFragment(rightEdge);
+            if (rightEdgeX != null)
+                return agent.getX() == Integer.parseInt(rightEdgeX);
+        }
+        else
+            return agent.getX() == 1;
+
+        return false;
+    }
+
+    protected String vectorToString(int x,int y) {
+        return x + "," + y;
+    }
+
+    protected List<Integer> stringToVector(String vector) {
+        var splitVector = vector.split(",");
+        return  new ArrayList<>(List.of(
+                Integer.parseInt(splitVector[0]),
+                Integer.parseInt(splitVector[1])
+        ));
     }
 }
