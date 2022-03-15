@@ -7,6 +7,7 @@ import java.util.Set;
 import agent.behavior.Behavior;
 import agent.behavior.BehaviorState;
 import environment.CellPerception;
+import environment.Coordinate;
 import environment.Perception;
 import environment.world.packet.Packet;
 
@@ -83,6 +84,10 @@ public interface AgentState {
      */
     int getY();
 
+    /**
+     * Get the coordinate of this agent
+     */
+    Coordinate getCoordinate();
 
     /**
      * Get the name of this agent.

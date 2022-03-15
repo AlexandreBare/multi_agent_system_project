@@ -1,0 +1,35 @@
+description "Randomly pick and drop a packet to the right location"
+
+
+# ------------------------------------------------
+# The amount of the behavior states the agent has
+# ------------------------------------------------
+nbStates 2
+
+
+# Enumeration of the behavior agent states
+1 agent.behavior.basic_extended.state.Search
+nbArgs 0
+2 agent.behavior.basic_extended.state.Deliver
+nbArgs 0
+
+
+
+# ---------------------------------------------------------------
+# The amount of behavior changes for the agent
+# ---------------------------------------------------------------
+nbChanges 2
+
+# First change, from behavior with ID 2 to behavior with ID 3
+agent.behavior.basic_extended.change.GotPacket
+nbArgs 0
+priority 0
+source 1
+target 2
+
+# Second change, from behavior with ID 3 to behavior with ID 1
+agent.behavior.basic_extended.change.DeliveredPacket
+nbArgs 0
+priority 0
+source 2
+target 1

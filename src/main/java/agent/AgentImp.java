@@ -15,13 +15,7 @@ import com.google.common.eventbus.Subscribe;
 
 import agent.behavior.Behavior;
 import agent.behavior.BehaviorState;
-import environment.ActiveImp;
-import environment.ActiveItemID;
-import environment.CellPerception;
-import environment.EnergyValues;
-import environment.Mail;
-import environment.MailBuffer;
-import environment.Perception;
+import environment.*;
 import environment.world.agent.Agent;
 import environment.world.agent.AgentRep;
 import environment.world.destination.DestinationRep;
@@ -495,6 +489,13 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         return this.getAgent().getY();
     }
 
+    /**
+     * Get the coordinate of this agent.
+     */
+    @Override
+    public Coordinate getCoordinate() {
+        return new Coordinate(getX(), getY());
+    }
 
     /**
      * Get the name of this agent.

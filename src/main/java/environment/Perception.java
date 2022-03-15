@@ -2,10 +2,12 @@ package environment;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Table;
 import gui.video.ItemDrawer.LinePoints;
 
 /**
@@ -13,7 +15,7 @@ import gui.video.ItemDrawer.LinePoints;
  *  by an Agent. A Perception will be filled with Representations of the Items that
  *  Agent sees.
  */
-public class Perception {
+public class Perception implements Iterable<CellPerception> {
 
     /**
      * The height of this Perception.
@@ -399,5 +401,37 @@ public class Perception {
         try {
             cells[i][j] = null;
         } catch (ArrayIndexOutOfBoundsException ignored) {}
+    }
+
+    @Override
+    public Iterator<CellPerception> iterator() {
+        return new PerceptionIterator();
+    }
+
+    private class PerceptionIterator implements Iterator<CellPerception> {
+        private int i = 0;
+        private int j = 0;
+
+        @Override
+        public boolean hasNext() {
+            return (i < width && j < height);
+        }
+
+        @Override
+        public CellPerception next() {
+            if (this.hasNext()) {
+                CellPerception cell = cells[i][j];
+
+                i += 1;
+                if (i >= width) {
+                    i = 0;
+                    j += 1;
+                }
+
+                return cell;
+            } else {
+                return null;
+            }
+        }
     }
 }

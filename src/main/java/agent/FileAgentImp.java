@@ -77,6 +77,7 @@ public class FileAgentImp extends AgentImp {
         } catch (Exception e) {
             this.logger.severe(String.format("Something went wrong while loading behavior from file %s: \n%s",
                     this.configFile, e.getMessage()));
+            e.printStackTrace();
         }
     }
 }

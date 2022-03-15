@@ -34,6 +34,10 @@ public class Coordinate extends Pair<Integer, Integer> {
         return new Coordinate(first + other.first, second + other.second);
     }
 
+    public Coordinate sub(Coordinate other) {
+        return new Coordinate(first - other.first, second - other.second);
+    }
+
     public boolean any(Predicate<Integer> pred) {
         return pred.test(first) || pred.test(second);
     }
@@ -56,6 +60,13 @@ public class Coordinate extends Pair<Integer, Integer> {
         return new Coordinate(newFst, newSnd);
     }
 
+    public int distance(Coordinate other) {
+        return Math.max(Math.abs(this.first - other.first), Math.abs(this.second - other.second));
+    }
+
+    public int manhattanDistance(Coordinate other) {
+        return Math.abs(this.first - other.first) + Math.abs(this.second - other.second);
+    }
 
     @Override
     public boolean equals(Object other) {
@@ -72,5 +83,4 @@ public class Coordinate extends Pair<Integer, Integer> {
     public int hashCode() {
         return Objects.hash(first, second);
     }
-
 }

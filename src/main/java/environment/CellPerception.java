@@ -241,4 +241,8 @@ public class CellPerception {
     public int getY() {
         return this.y;
     }
+
+    public Coordinate getCoordinate() {
+        return new Coordinate(this.x, this.y);
+    }
 }
