@@ -923,7 +923,7 @@ public class EnvironmentBuilder extends JFrame {
                 Environment env = builder.getEnvironment();
                 Packet p = new Packet(i, j, builder.getSelectedColor());
 
-                if (!CollisionMatrix.packetCanStandOn(env, i, j,p.getColor())) {
+                if (!CollisionMatrix.packetCanStandOn(env, i, j, p.getColor())) {
                     env.remove(i, j);
                 }
                 env.getPacketWorld().placeItem(p);

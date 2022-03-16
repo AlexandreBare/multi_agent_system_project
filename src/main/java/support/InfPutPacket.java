@@ -1,12 +1,12 @@
 package support;
 
+import java.awt.Color;
+
 import environment.ActiveItemID;
 import environment.Environment;
 import environment.world.packet.Packet;
 import environment.world.packet.PacketWorld;
 import util.event.AgentActionEvent;
-
-import java.awt.*;
 
 /**
  * A class for influences for putting down packets.
@@ -18,7 +18,8 @@ public class InfPutPacket extends Influence {
      * Cfr. super
      */
     public InfPutPacket(Environment environment, int x, int y, ActiveItemID agent) {
-        super(environment, x, y, agent, environment.getAgentWorld().getAgent(agent).getCarry().orElse(new Packet(x,y, Color.black)).getColor());
+        super(environment, x, y, agent, environment.getAgentWorld().getAgent(agent).getCarry()
+                .orElse(new Packet(x, y, Color.black)).getColor());
     }
 
     /**
