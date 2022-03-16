@@ -3,6 +3,8 @@ package environment;
 import environment.world.agent.AgentWorld;
 import environment.world.conveyor.ConveyorWorld;
 import environment.world.crumb.CrumbWorld;
+import environment.world.destination.Destination;
+import environment.world.destination.DestinationRep;
 import environment.world.destination.DestinationWorld;
 import environment.world.energystation.EnergyStationWorld;
 import environment.world.flag.FlagWorld;
@@ -10,6 +12,8 @@ import environment.world.generator.PacketGeneratorWorld;
 import environment.world.gradient.Gradient;
 import environment.world.packet.PacketWorld;
 import environment.world.pheromone.Pheromone;
+
+import java.awt.*;
 
 /**
  * A class that keeps track of which (kind of) Items can stand together on one
@@ -108,11 +112,11 @@ public class CollisionMatrix {
         return true;
     }
 
-    public static boolean packetCanStandOn(Environment env, int x, int y) {
+    public static boolean packetCanStandOn(Environment env, int x, int y, Color color) {
         for (World<?> w : env.getWorlds()) {
             if (w.getItem(x, y) != null &&
                     !(w instanceof CrumbWorld) &&
-                    !(w instanceof DestinationWorld) &&
+                    !(w instanceof DestinationWorld && ((DestinationRep) w.getItem(x,y).getRepresentation()).getColor() == color) &&
                     !(w instanceof PacketGeneratorWorld) &&
                     !(w instanceof ConveyorWorld) &&
                     !(w.getItem(x, y) instanceof Pheromone) &&
