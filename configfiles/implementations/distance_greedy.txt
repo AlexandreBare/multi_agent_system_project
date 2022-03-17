@@ -1,4 +1,4 @@
-description "Randomly move, pick and drop a packet to the right location"
+description "Move to the closest seeable packet. If none, move randomly."
 
 
 # ------------------------------------------------
@@ -8,9 +8,9 @@ nbStates 2                          # 2 behavior states
 
 
 # Enumeration of the behavior agent states
-1 agent.behavior.basic.Pickup
+1 agent.behavior.distance_greedy.Pickup
 nbArgs 0
-2 agent.behavior.basic.Deliver
+2 agent.behavior.distance_greedy.Deliver
 nbArgs 0
 
 
@@ -21,14 +21,14 @@ nbArgs 0
 nbChanges 2
 
 # First change, from behavior with ID 1 to behavior with ID 2
-agent.behavior.basic.change.HasPacket
+agent.behavior.distance_greedy.change.HasPacket
 nbArgs 0
 priority 0 # Higher value −> higher priority (in case of multiple satisfied change conditions from current behavior state)
 source 1 # ID of starting behavior
 target 2 # ID of resulting behavior
 
 # Second change, from behavior with ID 2 to behavior with ID 1
-agent.behavior.basic.change.HasNoPacket
+agent.behavior.distance_greedy.change.HasNoPacket
 nbArgs 0
 priority 0
 source 2
