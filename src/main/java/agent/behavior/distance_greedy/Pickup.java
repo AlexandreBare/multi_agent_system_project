@@ -9,6 +9,7 @@ import environment.Coordinate;
 import environment.MovementManager;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.PacketRep;
+import util.MyColor;
 
 import java.util.*;
 import java.util.List;
@@ -97,6 +98,8 @@ public class Pickup extends Behavior {
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
+        agentState.prettyPrintWorld();
+
         ///////////// Memorize all representations that the agent can see in his perception area /////////////
         agentState.memorizeAllPerceivableRepresentations();
 
@@ -108,7 +111,7 @@ public class Pickup extends Behavior {
         CellPerception packetCell = agentState.getNeighbouringCellWithPacket();
         if (packetCell != null){
             // Build the key to find a destination in memory where the current packet could be later delivered
-            String packetColor = packetCell.getRepOfType(PacketRep.class).getColor().toString();
+            String packetColor = MyColor.getName(packetCell.getRepOfType(PacketRep.class).getColor());
             String destinationKey = AgentState.rep2MemoryKey(DestinationRep.class.toString(), packetColor);
 
             // If the agent knows a destination that can accept the current packet (i.e. same color)
@@ -155,7 +158,7 @@ public class Pickup extends Behavior {
 
         // For all cells containing a packet in the agent's perception area
         for (var cell: agentState.getPerceivableCellsWithPacket()){
-            String packetColor = cell.getRepOfType(PacketRep.class).getColor().toString();
+            String packetColor = MyColor.getName(cell.getRepOfType(PacketRep.class).getColor());
             String destinationKey = AgentState.rep2MemoryKey(DestinationRep.class.toString(), packetColor);
             // If the agent knows a destination that can accept the current packet (i.e. same color)
             if (agentState.getMemoryFragmentKeys().contains(destinationKey)) {

@@ -156,11 +156,14 @@ public interface AgentState {
      * Get the current Behavior.
      */
     Behavior getCurrentBehavior();
-    
-
-    
 
 
+
+
+    /**
+     * Print the world as known by the agent (from his memory).
+     */
+    void prettyPrintWorld();
 
     /**
      * Adds a memory fragment to this agent (if its memory is not full).

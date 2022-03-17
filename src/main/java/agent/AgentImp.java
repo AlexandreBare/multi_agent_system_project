@@ -1,5 +1,8 @@
 package agent;
 
+import java.lang.*;
+//import java.io.*;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -738,6 +741,125 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     }
 
 
+    private static String rep2Initials(String rep){
+        if (rep.equals(PacketRep.class.toString()))
+            return "P";
+        if (rep.equals(DestinationRep.class.toString()))
+            return "D";
+        if (rep.equals(WallRep.class.toString()))
+            return "W";
+
+        return rep.substring(0, 1).toUpperCase();
+    }
+
+    /**
+     * Print the world as known by the agent (from his memory).
+     *
+     * Example:
+     * World seen from Bob's memory:
+     * -----------------------------------------
+     * | U | U | U |P_R|P_R| U | U | U | U | U |
+     * -----------------------------------------
+     * | U | U | U | U |P_R| U | U | U |P_R| U |
+     * -----------------------------------------
+     * | U | U | U | U | U | U | U | U |P_R| U |
+     * -----------------------------------------
+     * | U |P_R|P_R| U | U | U | U | U | U | U |
+     * -----------------------------------------
+     * | U | U |P_R| U | U | U | U | U | U | U |
+     * -----------------------------------------
+     * |P_R| U | U | U | U | U | U | U | U | U |
+     * -----------------------------------------
+     * | U | U | U | U | U | U | U | U | U |D_R|
+     * -----------------------------------------
+     * | U | U | U | U | U | U | U | U | U | U |
+     * -----------------------------------------
+     * | U | U | U | U | U | U | U | A | U | U |
+     * -----------------------------------------
+     * | U | U | U | U |P_R|P_R| U | U | U | U |
+     * -----------------------------------------
+     * | U | U | U | U |P_R|P_R| U | U |P_R|P_R|
+     * -----------------------------------------
+     *
+     * U = Unknown
+     * P_R = Packet_Red
+     * D_R = Destination_Red
+     * A = this Agent
+     *
+     * Note: We never print the other agents because they move around and we can not be sure of their location
+     */
+    @Override
+    public void prettyPrintWorld(){
+        if (this.getMemoryFragmentKeysContaining("Rep").size() == 0)
+            return;
+
+        int minXCoordinate = Integer.MAX_VALUE;
+        int maxXCoordinate = 0;
+        int minYCoordinate = Integer.MAX_VALUE;
+        int maxYCoordinate = 0;
+
+        Map<Coordinate, String> coordinates2Rep = new HashMap<>();
+        for (var key: this.getMemoryFragmentKeys()){
+            if (key.contains("Rep")) {
+                String dataFragment = this.getMemoryFragment(key);
+                String[] representationAndColor = AgentState.memoryKey2Rep(key);
+                String representation = representationAndColor[0];
+                String representationInitials = rep2Initials(representation);
+                String color = null;
+                if (representationAndColor.length == 2) {
+                    color = representationAndColor[1];
+                    representationInitials += "_" + rep2Initials(color);
+                }
+
+                List<Coordinate> coordinatesList = Coordinate.string2Coordinates(dataFragment);
+                for (var coordinates : coordinatesList) {
+                    coordinates2Rep.put(coordinates, representationInitials);
+                }
+
+                for (var coordinates: coordinatesList){
+                    int x = coordinates.getX();
+                    int y = coordinates.getY();
+                    if (x < minXCoordinate)
+                        minXCoordinate = x;
+                    if (y < minYCoordinate)
+                        minYCoordinate = y;
+                    if (x > maxXCoordinate)
+                        maxXCoordinate = x;
+                    if (y > maxYCoordinate)
+                        maxYCoordinate = y;
+                }
+            }
+        }
+
+        coordinates2Rep.put(new Coordinate(this.getX(), this.getY()), "A"); // Add this agent's position
+
+        StringBuilder prettyWorld = new StringBuilder(String.format("World seen from %s's memory:\n", this.getName()));
+
+
+        int cellLength = 3;
+        for (int y = minYCoordinate; y <= maxYCoordinate; y++){
+
+            prettyWorld.append("----".repeat(maxXCoordinate - minXCoordinate + 1)).append("-\n");
+            for (int x = minXCoordinate; x <= maxXCoordinate; x++){
+                prettyWorld.append("|");
+                String repInitials = coordinates2Rep.get(new Coordinate(x, y));
+                if (repInitials == null){
+                    repInitials = "U";
+                }
+                int textLength = repInitials.length();
+                int rightPadding = (cellLength - textLength)/2;
+                int leftPadding = cellLength - textLength - rightPadding;
+                if (rightPadding > 0)
+                    prettyWorld.append(" ".repeat(rightPadding));
+                prettyWorld.append(repInitials);
+                if (leftPadding > 0)
+                    prettyWorld.append(" ".repeat(leftPadding));
+            }
+            prettyWorld.append("|\n");
+        }
+        prettyWorld.append("----".repeat(maxXCoordinate - minXCoordinate + 1)).append("-\n");
+        System.out.println(prettyWorld);
+    }
 
 
     /**
@@ -790,10 +912,10 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         // For now, we only allow 3 representations to be memorized: DestinationRep, PacketRep, WallRep
         if (cell.containsAnyDestination()) {
             DestinationRep destinationRep = cell.getRepOfType(DestinationRep.class);
-            key = DestinationRep.class + "_" + destinationRep.getColor();
+            key = DestinationRep.class + "_" + MyColor.getName(destinationRep.getColor());
         }else if (cell.containsPacket()){
             PacketRep packetRep = cell.getRepOfType(PacketRep.class);
-            key = PacketRep.class + "_" + packetRep.getColor();
+            key = PacketRep.class + "_" + MyColor.getName(packetRep.getColor());
         }else if (cell.containsWall()){
             key = WallRep.class.toString();
         }

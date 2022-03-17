@@ -9,6 +9,7 @@ import environment.Coordinate;
 import environment.MovementManager;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.Packet;
+import util.MyColor;
 
 import java.awt.*;
 import java.util.*;
@@ -27,6 +28,7 @@ public class Deliver extends Behavior {
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
+        agentState.prettyPrintWorld();
 
         ///////////// Memorize all representations that the agent can see in his perception area /////////////
         agentState.memorizeAllPerceivableRepresentations();
@@ -78,7 +80,7 @@ public class Deliver extends Behavior {
         // Select the destination coordinates that we have stored in memory (there may be more than one pair)
         // that can accept the packet the agent has (i.e. they share the same color).
         List<Coordinate> destinationCoordinatesList = null;
-        String key = DestinationRep.class + "_" + packetColor;
+        String key = AgentState.rep2MemoryKey(DestinationRep.class.toString(), MyColor.getName(packetColor));
         if (agentState.getMemoryFragmentKeys().contains(key)) {
             String data = agentState.getMemoryFragment(key);
             destinationCoordinatesList = Coordinate.string2Coordinates(data);
