@@ -8,26 +8,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.logging.Logger;
 
+import com.google.common.collect.Table;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import agent.behavior.Behavior;
 import agent.behavior.BehaviorState;
-import environment.ActiveImp;
-import environment.ActiveItemID;
-import environment.CellPerception;
-import environment.EnergyValues;
-import environment.Mail;
-import environment.MailBuffer;
-import environment.Perception;
+import environment.*;
 import environment.world.agent.Agent;
 import environment.world.agent.AgentRep;
 import environment.world.destination.DestinationRep;
 import environment.world.generator.PacketGenerator;
 import environment.world.packet.Packet;
 import environment.world.packet.PacketRep;
+import environment.world.wall.WallRep;
 import support.ActionOutcome;
 import support.CommunicationOutcome;
 import support.InfNOP;
@@ -592,6 +589,56 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     }
 
 
+    /**
+     * Find a neighbouring cell that contains a destination of a specific color
+     *
+     * @param color     The color of the destination we are looking for
+     *
+     * @return          A cell that contains the matching destination,
+     *                  null if no neighbouring cell contains a matching destination
+     */
+    @Override
+    public CellPerception getNeighbouringCellWithDestination(Color color){
+        var perception = this.getPerception();
+        CellPerception[] neighbouringCells = perception.getNeighbours();
+
+        for (var cell: neighbouringCells){
+            if (cell != null && cell.containsDestination(color))
+                return cell;
+        }
+        return null;
+    }
+
+    /**
+     * Find cells in the agent's perception area that contain a destination of a specific color
+     *
+     * @param color     The color of the destination we are looking for
+     *
+     * @return          A set of cells that contain the matching destinations,
+     *                  An empty set if no perceivable cell contains a matching destination
+     */
+    @Override
+    public Set<CellPerception> getPerceivableCellsWithDestination(Color color){
+
+        var perception = this.getPerception();
+        int vw = perception.getWidth();
+        int vh = perception.getHeight();
+        Set<CellPerception> neighbouringCellsWithDestination = new HashSet<>();
+
+        for (int i = 0; i < vw; i++) {
+            for (int j = 0; j < vh; j++) {
+                // Look at each cell in the perception area
+                var cell = perception.getCellAt(i, j);
+                if (cell != null && cell.containsDestination(color)) {
+                    neighbouringCellsWithDestination.add(cell);
+                }
+            }
+        }
+
+        return neighbouringCellsWithDestination;
+    }
+
+
 
     /**
      * Check to see if this agent can see any packet.
@@ -602,7 +649,6 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     public boolean seesPacket() {
         return this.seesPacket(null);
     }
-
 
 
     /**
@@ -629,6 +675,68 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     }
 
 
+    /**
+     * Find a neighbouring cell that contains a packet
+     *
+     * @return          A cell that contains a packet,
+     *                  null if no neighbouring cell contains a packet
+     */
+    @Override
+    public CellPerception getNeighbouringCellWithPacket(){
+        var perception = this.getPerception();
+        CellPerception[] neighbouringCells = perception.getNeighbours();
+        Set<CellPerception> neighbouringCellsWithPacket = new HashSet<>();
+        for (var cell: neighbouringCells) {
+            if (cell != null && cell.containsPacket())
+                return cell;
+        }
+        return null;
+    }
+
+
+    /**
+     * Find cells in the agent's perception area that contain a packet
+     *
+     * @return          A set of cells that contain a packet,
+     *                  An empty set if no neighbouring cell contains a packet
+     */
+    @Override
+    public Set<CellPerception> getPerceivableCellsWithPacket(){
+        var perception = this.getPerception();
+        int vw = perception.getWidth();
+        int vh = perception.getHeight();
+        Set<CellPerception> neighbouringCellsWithPacket = new HashSet<>();
+
+        for (int i = 0; i < vw; i++) {
+            for (int j = 0; j < vh; j++) {
+                // Look at each cell in the perception area
+                var cell = perception.getCellAt(i, j);
+                if (cell != null && cell.containsPacket()) {
+                    neighbouringCellsWithPacket.add(cell);
+                }
+            }
+        }
+        return neighbouringCellsWithPacket;
+    }
+
+
+
+    /**
+     * Check if the agent can walk at some specific coordinates
+     *
+     * @param x     x-coordinate
+     * @param y     y-coordinate
+     *
+     * @return {@code true} if this agent can walk at these coordinates, {@code false} otherwise.
+     */
+    @Override
+    public boolean canWalk(int x, int y){
+        CellPerception cell = this.getPerception().getCellPerceptionOnAbsPos(x, y);
+        // If the area is null, it is outside the bounds of the environment
+        //  (when the agent is at any edge for example some moves are not possible)
+        return cell != null && cell.isWalkable();
+    }
+
 
 
 
@@ -640,10 +748,142 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
      */
     @Override
     public void addMemoryFragment(String key, String data) {
-        if (getNbMemoryFragments() < getMaxNbMemoryFragments()) {
+        if (key != null && !key.equals("") && data != null
+                && !data.equals("") && getNbMemoryFragments() < getMaxNbMemoryFragments()) {
             memory.put(key, data);
         }
     }
+
+    /**
+     * Append at the beginning of a memory fragment
+     * if the memory fragment corresponding to a given key already exists.
+     * Otherwise, adds a memory fragment to this agent (if its memory is not full).
+     *
+     * @param key     The key associated with the memory fragment.
+     * @param data    The data to append to the memory fragment.
+     */
+    @Override
+    public void append2Memory(String key, String data) {
+        if (data == null || data.equals("")){
+            return;
+        }
+
+        String oldData = this.getMemoryFragment(key);
+        if (oldData != null){
+            this.removeMemoryFragment(key);
+            this.addMemoryFragment(key, data + oldData);
+        }else{
+            this.addMemoryFragment(key, data);
+        }
+    }
+
+    /**
+     * Generate a key for the representation present on a given cell (used to standardize memory fragment storage).
+     *
+     * @param cell      The cell from which the representation key must be generated.
+     *
+     * @return String   The representation key generated.
+     */
+    @Override
+    public String rep2MemoryKey(CellPerception cell){
+        String key = null;
+        // For now, we only allow 3 representations to be memorized: DestinationRep, PacketRep, WallRep
+        if (cell.containsAnyDestination()) {
+            DestinationRep destinationRep = cell.getRepOfType(DestinationRep.class);
+            key = DestinationRep.class + "_" + destinationRep.getColor();
+        }else if (cell.containsPacket()){
+            PacketRep packetRep = cell.getRepOfType(PacketRep.class);
+            key = PacketRep.class + "_" + packetRep.getColor();
+        }else if (cell.containsWall()){
+            key = WallRep.class.toString();
+        }
+
+        return key;
+    }
+
+
+    /**
+     * Adds the representation on a given cell to this agent's memory (if its memory is not full).
+     *
+     * @param cell    The cell from which the representation must be memorized.
+     */
+    @Override
+    public void addRep2Memory(CellPerception cell) {
+        if (cell == null)
+            return;
+
+        String key = rep2MemoryKey(cell);
+        if (key == null)
+            return;
+
+        Coordinate cellCoordinates = new Coordinate(cell.getX(), cell.getY());
+        String data;
+        // If a representation with the same key has already been saved in memory
+        if (this.getMemoryFragmentKeys().contains(key)) {
+            data = this.getMemoryFragment(key); // get the string stored at this key
+            // Look through all coordinates stored at this key
+            for (Coordinate coordinate : Coordinate.string2Coordinates(data)) {
+                // If the coordinate we want to add are already present,
+                // we don't need to add it again
+                if (coordinate.equals(cellCoordinates)) {
+                    return;
+                }
+            }
+        }
+
+        this.append2Memory(key, cellCoordinates.toString());
+    }
+
+
+    /**
+     * Memorize all representations that the agent sees in his perception area.
+     */
+    @Override
+    public void memorizeAllPerceivableRepresentations() {
+        var perception = this.getPerception();
+
+        int vw = perception.getWidth();
+        int vh = perception.getHeight();
+
+        for (int i = 0; i < vw; i++) {
+            for (int j = 0; j < vh; j++) {
+                // Look at each cell in the perception area
+                var cell = perception.getCellAt(i, j);
+                if (cell != null) {
+                    this.addRep2Memory(cell);
+                }
+            }
+        }
+    }
+
+    /**
+     * Forget all representations that are not present anymore in the agent's perception area
+     * (because a packet was picked up by another agent for example)
+     *
+     * Note: for now, only remove packets from memory has it is the only movable representation
+     */
+    @Override
+    public void forgetAllUnperceivableRepresentations(){
+        var perception = this.getPerception();
+
+        int vw = perception.getWidth();
+        int vh = perception.getHeight();
+
+        for (int i = 0; i < vw; i++) {
+            for (int j = 0; j < vh; j++) {
+                // Look at each cell in the perception area
+                var cell = perception.getCellAt(i, j);
+
+                // If the cell exists and does not contain any packet (anymore)
+                if (cell != null && !cell.containsPacket()) {
+                    Coordinate cellCoordinates = new Coordinate(cell.getX(), cell.getY());
+                    // Remove the potential representation of the packet that the agent has in memory
+                    this.removeRepFromMemory(cellCoordinates, PacketRep.class.toString());
+                }
+            }
+        }
+    }
+
 
     /**
      * Removes a memory fragment with given key from this agent's memory.
@@ -653,6 +893,62 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     public void removeMemoryFragment(String key) {
         memory.remove(key);
     }
+
+
+    /**
+     * Removes a specific representation on a given cell from this agent's memory.
+     *
+     * @param cell    The cell from which the representation must be removed.
+     */
+    @Override
+    public void removeRepFromMemory(CellPerception cell) {
+        Coordinate cellCoordinates = new Coordinate(cell.getX(), cell.getY());
+        String representationKey = rep2MemoryKey(cell);
+        this.removeRepFromMemory(cellCoordinates, representationKey);
+    }
+
+    /**
+     * Removes a specific representation on a given cell from this agent's memory.
+     *
+     * @param cellCoordinates    The cell coordinates from which the representation must be removed.
+     * @param rep                The string of the representation to remove from memory.
+     */
+    @Override
+    public void removeRepFromMemory(Coordinate cellCoordinates, String rep) {
+        for(String key: this.getMemoryFragmentKeysContaining(rep)){
+            removeCoordinatesFromMemoryByKey(cellCoordinates, key);
+        }
+    }
+
+
+    /**
+     * Removes the coordinates stored at some key in this agent's memory.
+     *
+     * @param cellCoordinates    The cell coordinates from which the representation must be removed.
+     * @param key                The key at which is currently stored the coordinates to remove.
+     */
+    private void removeCoordinatesFromMemoryByKey(Coordinate cellCoordinates, String key){
+        StringBuilder newData = new StringBuilder();
+        // If a representation of the same key has already been saved in memory
+        if (this.getMemoryFragmentKeys().contains(key)) {
+            String data = this.getMemoryFragment(key); // Get the string stored at this key
+            // Look through all coordinates stored at this key
+            for (Coordinate coordinates : Coordinate.string2Coordinates(data)){
+                // We only copy as a string the coordinates that should not be removed
+                if (! coordinates.equals(cellCoordinates)){
+                    newData.append(coordinates.toString());
+                }
+            }
+            this.removeMemoryFragment(key); // Remove the memory fragment we have to modified
+        }
+
+        // If there is still some data to save at the given key after removing the given coordinates
+        if (!newData.toString().equals("")) {
+            // Save the destination coordinates to memory
+            this.addMemoryFragment(key, newData.toString());
+        }
+    }
+
 
     /**
      * Get a memory fragment with given key from this agent's memory.
@@ -670,6 +966,27 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     public Set<String> getMemoryFragmentKeys() {
         return this.memory.keySet();
     }
+
+    /**
+     * Get all the keys of stored memory fragments containing a given substring in this agent's memory.
+     *
+     * @param subkey    The substring of the memory fragment keys that we are looking for
+     *
+     * @return          A set of memory fragment keys matching the subkey
+     */
+    @Override
+    public Set<String> getMemoryFragmentKeysContaining(String subkey) {
+        Set<String> matchingKeys = new HashSet<>();
+        // For all keys in memory
+        for (String key : this.getMemoryFragmentKeys()) {
+            // If the subkey matches the current key, we save it
+            if (key.contains(subkey)) {
+                matchingKeys.add(key);
+            }
+        }
+        return matchingKeys;
+    }
+
 
     /**
      * Get the current number of memory fragments in memory of this agent.
