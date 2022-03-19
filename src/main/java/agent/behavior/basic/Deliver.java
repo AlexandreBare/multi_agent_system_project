@@ -50,10 +50,12 @@ public class Deliver extends Behavior {
                     agentState.addMemoryFragment(pickUpTarget,checkingCoordinates);
                 if (cellPerception.containsAnyDestination()) {
                     agentState.addMemoryFragment(dropOff,checkingCoordinates);
-                    if (agentState.getMemoryFragment(pickUpTarget) == null)
-                        lookAround(agentState); // this can find a new pickup target
+                    //if (agentState.getMemoryFragment(pickUpTarget) == null)
+                    //    lookAround(agentState); // this can find a new pickup target
                     setNotNullTarget(agentState,agentState.getMemoryFragment(storedTarget));
                     setNotNullTarget(agentState,agentState.getMemoryFragment(pickUpTarget));
+                    System.out.println("Stored target: " + agentState.getMemoryFragment(storedTarget));
+                    System.out.println("Pick up target: " + agentState.getMemoryFragment(pickUpTarget));
 
                     agentAction.putPacket(checkX,checkY);
                     return;

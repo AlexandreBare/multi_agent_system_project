@@ -140,7 +140,7 @@ abstract public class Behavior {
         if (goingToTheRight) {
             String rightEdgeX = agent.getMemoryFragment(rightEdge);
             if (rightEdgeX != null)
-                return agent.getX() == Integer.parseInt(rightEdgeX);
+                return agent.getX() >= Integer.parseInt(rightEdgeX);
         }
         else
             return agent.getX() == 1;
@@ -184,8 +184,16 @@ abstract public class Behavior {
             if (cellPerception.isWalkable())
                 action.step(agent.getX() + xStep, agent.getY() + yStep);
             else {// try going around the obstacle (for now by random avoidance)
+                Coordinate tar = stringToCoordinates(agent.getMemoryFragment(target));
+                boolean targetInaccessible  =
+                        (tar.getX() == agent.getX()+xStep) &&
+                        (tar.getY() == agent.getY()+yStep);
                 xStep = rand.nextInt(0,3) -1; //int between -1 and 1
                 yStep = rand.nextInt(0,3) -1;
+                if (targetInaccessible){
+                    String newTarget = coordinatesToString(agent.getX() + xStep, agent.getY() + yStep);
+                    agent.addMemoryFragment(target,newTarget);
+                }
                 //retry to take step in (maybe) different direction
                 takeStep(agent,action,xStep,yStep);
             }
@@ -214,7 +222,7 @@ abstract public class Behavior {
                 int y = agent.getY();
                 int x = agent.getX();
                 if (y % 2 == 0 || aboutToHitAWall(agent))
-                    y += 2; // go down 2 or more with higher vis
+                    y += 1; // go down 1 or more with higher vis
                 else if ((y-1)/2 % 2 == 0)
                     x = Integer.parseInt(rightEdgeCoordinate); // set x to right edge
                 else
@@ -256,13 +264,11 @@ abstract public class Behavior {
         ));
         int distanceFromCenter = 1;
         Perception perception = agent.getPerception();
-        System.out.println("width: " + perception.getWidth() + " height: " + perception.getHeight());
         boolean inFieldOfView = true;
         while (inFieldOfView){
             inFieldOfView =false;
             int x = distanceFromCenter + agent.getX();
             int y = distanceFromCenter + agent.getY();
-            System.out.println("---------- "+ distanceFromCenter +" ----------");
             for (int direction = 0; direction < 4; direction++){
                 for(int i = 0; i < 2*distanceFromCenter; i++){
                     x += offset.get(direction).getX();
@@ -277,7 +283,6 @@ abstract public class Behavior {
                             return;
                         }
                     }
-                    System.out.println(x + " : " + y);
 
                 }
             }
@@ -292,9 +297,11 @@ abstract public class Behavior {
         return target.getX() == agent.getX() || target.getY() == agent.getY();
     }
 
-    protected void setNotNullTarget(AgentState agent, String newTarget){
-        if (target != null)
+    protected void setNotNullTarget(AgentState agent, String newTarget) {
+        if (newTarget != null) {
             agent.addMemoryFragment(target, newTarget);
+            System.out.println(newTarget);
+        }
     }
 
 }
