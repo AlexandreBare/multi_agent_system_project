@@ -53,7 +53,12 @@ public class Deliver extends Behavior {
                     return;
                 }
 
-                agentAction.skip();
+                Coordinate move = Step.random(agentState);
+                if (move != null) {
+                    agentAction.step(move.getX(), move.getY());
+                } else {
+                    agentAction.skip();
+                }
             }
         }
     }
