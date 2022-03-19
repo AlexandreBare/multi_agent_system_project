@@ -84,7 +84,7 @@ public class Deliver extends Behavior {
 
             if (cell.containsDestination(packetColor)) {
                 Coordinate cellCoordinate = cell.getCoordinate();
-                int distance = agentState.getCoordinate().distance(cellCoordinate);
+                int distance = agentState.getCoordinate().distanceFrom(cellCoordinate);
                 if (distance < closestDestinationDistance) {
                     closestDestinationDistance = distance;
                     closestDestinationLocation = cellCoordinate;

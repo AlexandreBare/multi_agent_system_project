@@ -62,7 +62,7 @@ public class Search extends Behavior {
 
             if (cell.containsPacket()) {
                 Coordinate cellCoordinate = cell.getCoordinate();
-                int distance = agentState.getCoordinate().distance(cellCoordinate);
+                int distance = agentState.getCoordinate().distanceFrom(cellCoordinate);
                 if (distance < closestPacketDistance) {
                     closestPacketDistance = distance;
                     closestPacketLocation = cellCoordinate;

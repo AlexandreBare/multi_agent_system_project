@@ -1,7 +1,15 @@
 package environment;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import util.Pair;
 
@@ -12,6 +20,26 @@ public class Coordinate extends Pair<Integer, Integer> {
 
     public Coordinate(int x, int y) {
         super(x, y);
+    }
+
+    /**
+     * Converts a string of the format "(%d, %d)...(%d, %d)" to a list of coordinates
+     *
+     * @param data  The data string (format: "(%d, %d)...(%d, %d)")
+     *
+     * @return      A list of coordinates
+     */
+    public static List<Coordinate> string2Coordinates(String data){
+        Pattern p = Pattern.compile("\\d+"); // A pattern to search for int's...
+        Matcher m = p.matcher(data); // ... in the given string: data
+        List<Coordinate> coordinates = new ArrayList<>();
+        while (m.find()) { // As long as a int can be found in this string
+            int x = Integer.parseInt(m.group()); // Save the x-coordinate
+            m.find(); // Find the next int
+            int y = Integer.parseInt(m.group()); // Save the y-coordinate
+            coordinates.add(new Coordinate(x, y)); // Store the coordinates in a list
+        }
+        return coordinates;
     }
 
     public int getX() {
@@ -34,8 +62,57 @@ public class Coordinate extends Pair<Integer, Integer> {
         return new Coordinate(first + other.first, second + other.second);
     }
 
-    public Coordinate sub(Coordinate other) {
-        return new Coordinate(first - other.first, second - other.second);
+    /**
+     * Computes the "maximum coordinate distance" (= the highest coordinate difference in absolute value)
+     * between 2 pair of coordinates.
+     *
+     * @param other     The other pair of coordinates
+     *
+     * @return          The distance between the 2 pair of coordinates
+     */
+    public int distanceFrom(Coordinate other){
+        return distanceFrom(other, "MaxCoordinateDistance");
+    }
+
+    /**
+     * Computes the distance between 2 pair of coordinates.
+     *
+     * @param other     The other pair of coordinates
+     * @param method    "MaxCoordinateDistance": the highest coordinate difference in absolute value
+     *                  "ManhattanDistance": the sum of the coordinates difference in absolute values
+     *
+     * @return          The distance between the 2 pair of coordinates
+     */
+    public int distanceFrom(Coordinate other, String method){
+        Coordinate diff = this.diff(other);
+
+        if (method.equals("ManhattanDistance")){
+            return Math.abs(diff.getX()) + Math.abs(diff.getY());
+        }
+
+
+        // As the agent can move diagonally, distances should be measured by the maximum of the
+        // coordinates difference in absolute values.
+        // if (method.equals("MaxCoordinateDistance"))
+        return Math.max(Math.abs(diff.getX()), Math.abs(diff.getY()));
+    }
+
+    /**
+     * Finds the closest (in terms of "maximum coordinate distance") pair of coordinates
+     * from a list of coordinates pairs to the given coordinates pair
+     *
+     * @param coordinatesList    A list of coordinates pairs
+     *
+     * @return                   The closest pair of coordinates
+     */
+    public Coordinate closestCoordinatesTo(List<Coordinate> coordinatesList) {
+        if (coordinatesList.isEmpty())
+            return null;
+
+        List<Integer> distances = coordinatesList.stream().map(c -> c.distanceFrom(this)).toList();
+        int minDistanceIndex = distances.indexOf(Collections.min(distances));
+        Coordinate destinationCoordinates = coordinatesList.get(minDistanceIndex);
+        return destinationCoordinates;
     }
 
     public boolean any(Predicate<Integer> pred) {
@@ -58,14 +135,6 @@ public class Coordinate extends Pair<Integer, Integer> {
             newSnd = second < 0 ? -1 : 1;
 
         return new Coordinate(newFst, newSnd);
-    }
-
-    public int distance(Coordinate other) {
-        return Math.max(Math.abs(this.first - other.first), Math.abs(this.second - other.second));
-    }
-
-    public int manhattanDistance(Coordinate other) {
-        return Math.abs(this.first - other.first) + Math.abs(this.second - other.second);
     }
 
     @Override

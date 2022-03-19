@@ -9,6 +9,7 @@ import agent.behavior.BehaviorState;
 import environment.CellPerception;
 import environment.Coordinate;
 import environment.Perception;
+import environment.Representation;
 import environment.world.packet.Packet;
 
 
@@ -43,6 +44,27 @@ public interface AgentState {
 
 
     /**
+     * Find a neighbouring cell that contains a destination of a specific color
+     *
+     * @param color     The color of the destination we are looking for
+     *
+     * @return          A cell that contains the matching destination,
+     *                  null if no neighbouring cell contains a matching destination
+     */
+    CellPerception getNeighbouringCellWithDestination(Color color);
+
+
+    /**
+     * Find cells in the agent's perception area that contain a destination of a specific color
+     *
+     * @param color     The color of the destination we are looking for
+     *
+     * @return          A set of cells that contain the matching destinations,
+     *                  An empty set if no perceivable cell contains a matching destination
+     */
+    Set<CellPerception> getPerceivableCellsWithDestination(Color color);
+
+    /**
      * Check to see if this agent can see a packet with the specified color.
      *
      * @return {@code true} if this agent can see such a packet, {@code false} otherwise.
@@ -56,6 +78,32 @@ public interface AgentState {
      * @return {@code true} if this agent can see such a packet, {@code false} otherwise.
      */
     boolean seesPacket();
+
+    /**
+     * Find a neighbouring cell that contains a packet
+     *
+     * @return          A cell that contains a packet,
+     *                  null if no neighbouring cell contains a packet
+     */
+    CellPerception getNeighbouringCellWithPacket();
+
+    /**
+     * Find cells in the agent's perception area that contain a packet
+     *
+     * @return          A set of cells that contain a packet,
+     *                  An empty set if no neighbouring cell contains a packet
+     */
+    Set<CellPerception> getPerceivableCellsWithPacket();
+
+    /**
+     * Check if the agent can walk at some specific coordinates
+     *
+     * @param x     x-coordinate
+     * @param y     y-coordinate
+     *
+     * @return {@code true} if this agent can walk at these coordinates, {@code false} otherwise.
+     */
+    boolean canWalk(int x, int y);
 
 
 
@@ -127,10 +175,90 @@ public interface AgentState {
     void addMemoryFragment(String key, String data);
 
     /**
+     * Append at the beginning of a memory fragment from this agent
+     * if the memory fragment corresponding to a given key already exists.
+     * Otherwise, adds a memory fragment to this agent (if its memory is not full).
+     *
+     * @param key     The key associated with the memory fragment
+     * @param data    The data to append to the memory fragment
+     */
+    void append2Memory(String key, String data);
+
+    /**
+     * Generate a key for the representation present on a given cell (used to standardize memory fragment storage).
+     *
+     * @param cell      The cell from which the representation key must be generated.
+     *
+     * @return String   The representation key generated
+     */
+    String rep2MemoryKey(CellPerception cell);
+
+    /**
+     * Generate a memory key for a given representation and a given color (used to standardize memory fragment storage).
+     *
+     * @param rep       A string of the representation.
+     *                  Either DestinationRep.class.toString() or PacketRep.class.toString()
+     * @param color     The color of the representation
+     *
+     * @return String   The representation key generated.
+     */
+    static String rep2MemoryKey(String rep, String color){
+        String key = rep + "_" + color;
+        return key;
+    }
+
+    /**
+     * Retrieve the representation and color from a given memory key (used to standardize memory fragment storage).
+     *
+     * @param key       The memory key with which a representation is stored
+     *
+     * @return          An array of 2 string elements: the representation and color corresponding to the key
+     */
+    static String[] memoryKey2Rep(String key){
+        String[] representationAndColor = key.split("_");
+        return representationAndColor;
+    }
+
+    /**
+     * Adds the representation on a given cell to this agent's memory (if its memory is not full).
+     *
+     * @param cell    The cell from which the representation must be memorized
+     */
+    void addRep2Memory(CellPerception cell);
+
+    /**
+     * Memorizes all representations that the agent sees in his perception area
+     */
+    void memorizeAllPerceivableRepresentations();
+
+    /**
+     * Forget all representations that are not present anymore in the agent's perception area
+     * (because a packet was picked up by another agent for example)
+     *
+     * Note: for now, only remove packets from memory has it is the only movable representation
+     */
+    void forgetAllUnperceivableRepresentations();
+
+    /**
      * Removes a memory fragment with given key from this agent's memory.
      * @param key  The key of the memory fragment to remove.
      */
     void removeMemoryFragment(String key);
+
+    /**
+     * Removes the representation on a given cell from this agent's memory.
+     *
+     * @param cell    The cell from which the representation must be removed.
+     */
+    void removeRepFromMemory(CellPerception cell);
+
+    /**
+     * Removes a specific representation on a given cell from this agent's memory.
+     *
+     * @param cellCoordinates    The cell coordinates from which the representation must be removed.
+     * @param rep                The string of the representation to remove from memory.
+     */
+    void removeRepFromMemory(Coordinate cellCoordinates, String rep);
 
     /**
      * Get a memory fragment with given key from this agent's memory.
@@ -142,6 +270,15 @@ public interface AgentState {
      * Get all the keys of stored memory fragments in this agent's memory.
      */
     Set<String> getMemoryFragmentKeys();
+
+    /**
+     * Get all the keys of stored memory fragments containing a given substring in this agent's memory.
+     *
+     * @param subkey    The substring of the memory fragment keys that we are looking for
+     *
+     * @return          A set of memory fragment keys matching the subkey
+     */
+    Set<String> getMemoryFragmentKeysContaining(String subkey);
 
     /**
      * Get the current number of memory fragments in memory of this agent.
