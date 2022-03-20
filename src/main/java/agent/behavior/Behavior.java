@@ -164,6 +164,7 @@ abstract public class Behavior {
     }
 
     protected void walkToTarget(AgentState agent, AgentAction action, Coordinate target) {
+        System.out.println(target);
         // get the difference
         int xDiff = target.getX() - agent.getX();
         int yDiff = target.getY() - agent.getY();
@@ -181,7 +182,7 @@ abstract public class Behavior {
                 agent.getPerception().getCellPerceptionOnAbsPos(agent.getX() + xStep, agent.getY() + yStep);
         // try and take a step
         if (cellPerception != null) {
-            if (cellPerception.isWalkable())
+            if (cellPerception.isWalkable() && !cellPerception.containsAgent())
                 action.step(agent.getX() + xStep, agent.getY() + yStep);
             else {// try going around the obstacle (for now by random avoidance)
                 Coordinate tar = stringToCoordinates(agent.getMemoryFragment(target));
@@ -235,6 +236,7 @@ abstract public class Behavior {
     }
 
     protected void findRightEdge(AgentState agent){
+        System.out.println("searching right edge " + agent.getName());
         // get cellPerception of the cell to the right
         CellPerception cellPerception =
                 agent.getPerception().getCellPerceptionOnAbsPos(agent.getX() + 1, agent.getY());
