@@ -369,12 +369,13 @@ public class ItemDrawer extends Drawer {
         int j = pheromone.getY();
         int range = bgColor.getGreen();
         int plus = range * pheromone.getLifetime() / 2000;
-        if (plus > 255) plus = 255;
+        int newGreen = range - plus;
+        if (newGreen < 0) newGreen = 0;
 
         int hr = horizontalOffset + i * cellWidth;
         int vr = verticalOffset + j * cellWidth;
-	    g.setColor(new Color(bgColor.getRed(), range - plus, bgColor.getBlue()));
- 
+        g.setColor(new Color(bgColor.getRed(), newGreen, bgColor.getBlue()));
+
         g.fillRect(hr + 1, vr + 1, cellWidth - 2, cellWidth - 2);
     }
 
@@ -742,7 +743,23 @@ public class ItemDrawer extends Drawer {
     }
 
     @Override
-    public void drawCrumb(Crumb crumb) {}
+    public void drawCrumb(Crumb crumb) {
+        int amount = crumb.getNumber();
+        int i = crumb.getX();
+        int j = crumb.getY();
+
+        g.setColor(Color.black);
+
+        Font font = new Font("Courier", Font.BOLD, 8);
+        g.setFont(font);
+
+        var text = "" + amount;
+
+        g.drawString(text,
+                i * cellWidth + horizontalOffset + cellWidth / 16 ,
+                (j + 1) * cellWidth + verticalOffset - cellWidth / 8
+        );
+    }
 
     @Override
     public void drawGradient(Gradient gradient) {
