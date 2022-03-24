@@ -65,6 +65,11 @@ public class AsciiReader {
         return Float.parseFloat(str);
     }
 
+    public boolean readBoolean() throws IOException {
+        String str = readNext();
+        return Boolean.parseBoolean(str);
+    }
+
     // verification operations
     /**
      * Reads a token from the stream and checks if it matches the argument
@@ -98,6 +103,7 @@ public class AsciiReader {
                 case "java.lang.Integer" -> args[i] = Integer.TYPE;
                 case "java.lang.Double" -> args[i] = Double.TYPE;
                 case "java.lang.Float" -> args[i] = Float.TYPE;
+                case "java.lang.Boolean" -> args[i] = Boolean.TYPE;
                 default -> args[i] = values[i].getClass();
             }
         }
@@ -151,6 +157,7 @@ public class AsciiReader {
             case "Integer" -> readInt();
             case "Float" -> readFloat();
             case "Double" -> readDouble();
+            case "Boolean" -> readBoolean();
             default -> null;
         };
     }
