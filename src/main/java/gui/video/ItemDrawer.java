@@ -750,7 +750,8 @@ public class ItemDrawer extends Drawer {
 
         g.setColor(Color.black);
 
-        Font font = new Font("Courier", Font.BOLD, 8);
+        int fontSize = clamp(cellWidth / 9, 8, 12);
+        Font font = new Font("Courier", Font.BOLD, fontSize);
         g.setFont(font);
 
         var text = "" + amount;
