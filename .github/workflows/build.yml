@@ -1,6 +1,6 @@
 name: Java regular Compile
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
