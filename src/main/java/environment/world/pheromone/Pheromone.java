@@ -60,6 +60,9 @@ public class Pheromone extends Item<PheromoneRep> implements ClockListener {
      */
     public Pheromone(Environment environ, int x, int y, int time) {
         super(x, y);
+        if (time > Pheromone.MAX_LIFETIME) {
+            time = Pheromone.MAX_LIFETIME;
+        }
         lifetime = time;
         env = environ;
         env.getClock().addListener(this); //register this pheromone to listen to the clock
