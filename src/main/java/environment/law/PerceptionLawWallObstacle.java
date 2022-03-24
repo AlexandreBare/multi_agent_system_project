@@ -74,8 +74,9 @@ public class PerceptionLawWallObstacle implements PerceptionLaw {
                 err += dx;
                 y0 += sy;
             }
-            if (0 <= x0 && x0 < perception.getWidth() 
-                    && 0 <= y0 && y0 < perception.getHeight() 
+            if (0 <= x0 && x0 < perception.getWidth()
+                    && 0 <= y0 && y0 < perception.getHeight()
+                    && (x0 != x1 || y0 != y1)
                     && perception.getCellAt(x0, y0).getRepOfType(WallRep.class) != null 
                     && !perception.getCellAt(x0, y0).getRepOfType(WallRep.class).isSeeThrough()) {
                 return true;
