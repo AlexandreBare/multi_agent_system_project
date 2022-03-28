@@ -1,0 +1,47 @@
+description "Randomly pick and drop a packet to the right location"
+
+
+# ------------------------------------------------
+# The amount of the behavior states the agent has
+# ------------------------------------------------
+nbStates 3                          # 3 behavior states
+
+
+# Enumeration of the behavior agent states
+1 agent.behavior.wall_hugger.TargetedPickup
+nbArgs 0
+2 agent.behavior.wall_hugger.TargetedDropOff
+nbArgs 0
+3 agent.behaviour.wall_hugger.Wanderer
+
+
+
+# ---------------------------------------------------------------
+# The amount of behavior changes for the agent
+# ---------------------------------------------------------------
+nbChanges 4
+
+agent.behavior.wall_hugger.change.NoPacketDestinationComboFound
+nbArgs 0
+priority 0
+source 3
+target 1
+
+agent.behavior.wall_hugger.change.PickingUp
+nbArgs 0
+priority 0
+source 1
+target 2
+
+agent.behavior.wall_hugger.change.Delivering
+nbArgs 0
+priority 0
+source 2
+target 1
+
+agent.behavior.wall_hugger.change.Delivering
+nbArgs 0
+priority 1
+source 2
+target 3
+

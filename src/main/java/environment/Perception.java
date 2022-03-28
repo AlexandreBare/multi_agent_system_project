@@ -107,7 +107,6 @@ public class Perception {
     }
 
 
-
     /**
      *  Returns all Representations that are situated right next to the agent that issued this
      *  Perception.

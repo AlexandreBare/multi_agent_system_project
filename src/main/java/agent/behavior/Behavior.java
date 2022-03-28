@@ -7,10 +7,13 @@ import agent.AgentState;
 import environment.CellPerception;
 import environment.Coordinate;
 import environment.Perception;
+import environment.world.destination.DestinationRep;
+import environment.world.packet.PacketRep;
 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -27,6 +30,7 @@ abstract public class Behavior {
 
     //memoryKeys
     protected String target = "tar";
+    protected String targetsKey = "targets";
     protected String pickUpTarget = "tarp";
     protected String storedTarget = "tars";
     protected String dropOff = "dof";
@@ -163,18 +167,6 @@ abstract public class Behavior {
         );
     }
 
-    protected void walkToTarget(AgentState agent, AgentAction action, Coordinate target) {
-        System.out.println(target);
-        // get the difference
-        int xDiff = target.getX() - agent.getX();
-        int yDiff = target.getY() - agent.getY();
-
-        // try to take a step directly towards the target
-        int xStep = xDiff == 0 ? 0 : xDiff/Math.abs(xDiff);
-        int yStep = yDiff == 0 ? 0 : yDiff/Math.abs(yDiff);
-
-        takeStep(agent, action, xStep, yStep);
-    }
 
     protected void takeStep(AgentState agent, AgentAction action, int xStep,int yStep){
         // get cell perception
@@ -257,39 +249,10 @@ abstract public class Behavior {
         }
     }
 
+
     protected void lookAround (AgentState agent){
-        List<Coordinate> offset= new ArrayList<>(List.of(
-                new Coordinate(0,-1),
-                new Coordinate(-1,0),
-                new Coordinate(0,1),
-                new Coordinate(1,0)
-        ));
-        int distanceFromCenter = 1;
-        Perception perception = agent.getPerception();
-        boolean inFieldOfView = true;
-        while (inFieldOfView){
-            inFieldOfView =false;
-            int x = distanceFromCenter + agent.getX();
-            int y = distanceFromCenter + agent.getY();
-            for (int direction = 0; direction < 4; direction++){
-                for(int i = 0; i < 2*distanceFromCenter; i++){
-                    x += offset.get(direction).getX();
-                    y += offset.get(direction).getY();
-                    CellPerception cellPerception = perception.getCellPerceptionOnAbsPos(x,y);
-
-                    if (cellPerception != null){
-                        inFieldOfView = true;
-                        if (cellPerception.containsPacket()){
-                            String newPickUpTarget = coordinatesToString(x,y);
-                            agent.addMemoryFragment(pickUpTarget,newPickUpTarget);
-                            return;
-                        }
-                    }
-
-                }
-            }
-            distanceFromCenter++;
-        }
+        agent.memorizeAllPerceivableRepresentations();
+        agent.forgetAllUnperceivableRepresentations();
     }
     protected boolean onTarget(AgentState agent){
         String targetString = agent.getMemoryFragment(target);
@@ -305,5 +268,172 @@ abstract public class Behavior {
             System.out.println(newTarget);
         }
     }
+
+
+    protected void walkToTarget(AgentState agent, AgentAction action, Coordinate target) {
+        // get the difference
+        int xDiff = target.getX() - agent.getX();
+        int yDiff = target.getY() - agent.getY();
+
+        // try to take a step directly towards the target
+        int xStep = xDiff == 0 ? 0 : xDiff/Math.abs(xDiff);
+        int yStep = yDiff == 0 ? 0 : yDiff/Math.abs(yDiff);
+
+        //try to take a step
+        if (!agent.getPerception().getCellPerceptionOnAbsPos(agent.getX() + xStep,agent.getY() + yStep).isWalkable()){
+            agent.removeMemoryFragment(targetsKey);
+            action.skip();
+            return;
+        }
+
+        action.step(agent.getX()+xStep,agent.getY()+yStep);
+    }
+
+    public void setPathToTarget(AgentState agent, Coordinate target){
+        List<Coordinate> path = pathToTarget(agent,target);
+        if (path == null)
+            return;
+        agent.addMemoryFragment(targetsKey,coordinatesToString(path));
+    }
+
+    public String coordinatesToString(List<Coordinate> coordinates){
+        String result = "";
+        for (int i = coordinates.size()-1; i>0; i--){
+            result += coordinates.get(i).toString();
+        }
+        return result;
+    }
+
+    public List<Coordinate> pathToTarget(AgentState agent,Coordinate target){
+        Coordinate agentPos = agent.getPosition();
+        Coordinate previousPos = agent.getPosition();
+        List<Coordinate> path = new ArrayList<>();
+        while (!agentPos.equals(target)){
+            Coordinate newPos = stepToTarget(agentPos,target);
+            if (newPos.equals(target))
+                return path;
+            else if (!isWalkableInMemory(agent,newPos) || path.contains(newPos)) {
+                if (agentPos == previousPos){
+                    Coordinate diff = agentPos.diff(target);
+                    int x = diff.getX() == 0 ? 0 : diff.getX()/Math.abs(diff.getX());
+                    int y = diff.getY() == 0 ? 0 : diff.getY()/Math.abs(diff.getY());
+                    Coordinate pseudoPreviousPos = new Coordinate(agentPos.getX()-x, agentPos.getY()-y);
+                    newPos = hugWall(agent,pseudoPreviousPos,agentPos);
+                }
+                else
+                    newPos = hugWall(agent,previousPos,agentPos);
+            }
+            if (newPos == null)
+                return null;
+            path.add(newPos);
+            // update agentpos
+            previousPos = agentPos;
+            agentPos = newPos;
+        }
+        return path;
+    }
+
+    public Coordinate hugWall(AgentState agentState, Coordinate prevPos, Coordinate currentPos){
+        Perception perception = agentState.getPerception();
+        Coordinate front = currentPos.diff(prevPos).add(currentPos);
+        Coordinate right = getCoordinateToTheRight(perception,front,currentPos.diff(agentState.getPosition()));
+
+        for(int i = 0; i<8; i++){
+            if (isWalkableInMemory(agentState,right))
+                return right;
+            right = getCoordinateToTheRight(perception,right,currentPos.diff(agentState.getPosition()));
+        }
+        return null;
+    }
+
+    public Coordinate getCoordinateToTheRight(Perception perception, Coordinate front, Coordinate offset){
+        CellPerception[] neighbours = perception.getNeighboursInOrder();
+        int neighbourToTheRight =-1;
+        front.diff(offset);
+        for(int i= 0; i<8; i++){
+            if (neighbours[i].getX() == front.getX() && neighbours[i].getY() == front.getY())
+                neighbourToTheRight = (i+1)%8;
+        }
+        CellPerception rightNeighbour = neighbours[neighbourToTheRight];
+        return new Coordinate(rightNeighbour.getX(), rightNeighbour.getY()).add(offset);
+    }
+
+    public Coordinate stepToTarget(Coordinate pos, Coordinate target){
+        // get the difference
+        int xDiff = target.getX() - pos.getX();
+        int yDiff = target.getY() - pos.getY();
+
+        int xStep = xDiff == 0 ? 0 : xDiff/Math.abs(xDiff);
+        int yStep = yDiff == 0 ? 0 : yDiff/Math.abs(yDiff);
+
+        return new Coordinate(xStep,yStep);
+    }
+
+    public boolean isWalkableInMemory(AgentState agentState,  Coordinate pos){
+        for (String key : agentState.getMemoryFragmentKeys()){
+            if (key != targetsKey && agentState.getMemoryFragment(key).contains(pos.toString()))
+                return false;
+        }
+        return true;
+    }
+
+    protected List<Coordinate> getMoves(){
+        return new ArrayList<>(List.of(
+                new Coordinate(1, 1), new Coordinate(-1, -1),
+                new Coordinate(1, 0), new Coordinate(-1, 0),
+                new Coordinate(0, 1), new Coordinate(0, -1),
+                new Coordinate(1, -1), new Coordinate(-1, 1)
+        ));
+    }
+
+    public Coordinate getClosestTargetFromMemory(String subKey, AgentState agentState){
+        Set<String> keys = agentState.getMemoryFragmentKeysContaining(subKey);
+        Coordinate agentPos = agentState.getPosition();
+        int minDistance = -1;
+        Coordinate closestTarget = null;
+
+        for (String key: keys){
+            String memoryFragment = agentState.getMemoryFragment(key);
+            if(memoryFragment != null && keyIsOkForSelection(key,agentState) )
+            for (Coordinate coordinate: Coordinate.string2Coordinates(memoryFragment)){
+                int distance = getDistance(coordinate,agentPos);
+                if (minDistance<0 ||minDistance>distance){
+                    minDistance = distance;
+                    closestTarget = coordinate;
+                }
+            }
+        }
+        return closestTarget;
+    }
+
+    public boolean keyIsOkForSelection(String key, AgentState agentState){
+        String[] keyParts = key.split("_");
+        if (keyParts.length != 2 || keyParts[0] != PacketRep.class.toString())
+            return true;
+        String color = keyParts[1];
+        String correspondingDestination = DestinationRep.class + "_" + color;
+        if (agentState.getMemoryFragment(correspondingDestination) == null)
+            return false;
+        return true;
+    }
+
+    public int getDistance(Coordinate pos1, Coordinate pos2){
+        int diffx = Math.abs(pos1.getX()-pos2.getX());
+        int diffy = Math.abs(pos1.getY()-pos2.getY());
+
+        return Math.max(diffx,diffy);
+    }
+
+    public Coordinate popCoordinateFromMemory(AgentState agent, String key){
+        String memoryFragment = agent.getMemoryFragment(key);
+        if (memoryFragment == null)
+            return null;
+        List<Coordinate> targets = Coordinate.string2Coordinates(memoryFragment);
+        Coordinate target = targets.get(0);
+        targets.remove(0);
+        agent.addMemoryFragment(key,coordinatesToString(targets));
+        return target;
+    }
+
 
 }

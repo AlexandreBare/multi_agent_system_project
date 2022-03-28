@@ -492,6 +492,11 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         return this.getAgent().getY();
     }
 
+    /**
+     * Get the coordinates of this agents current position
+     */
+    @Override
+    public Coordinate getPosition(){ return new Coordinate(this.getAgent().getX(),this.getAgent().getY()); }
 
     /**
      * Get the name of this agent.

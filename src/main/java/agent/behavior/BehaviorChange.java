@@ -2,6 +2,8 @@ package agent.behavior;
 
 
 import agent.AgentState;
+import environment.world.destination.DestinationRep;
+import environment.world.packet.PacketRep;
 
 
 abstract public class BehaviorChange {
@@ -71,4 +73,18 @@ abstract public class BehaviorChange {
         behaviorState.finish();
         behaviorState = null;
     }
+
+    public boolean matchingPacketAndDestination(){
+        for (String key : agentState.getMemoryFragmentKeys()){
+            String[] keyParts = key.split("_");
+            if (keyParts.length == 2 && keyParts[0].equals(DestinationRep.class.toString())){
+                String color = keyParts[1];
+                String correspondingPacket = PacketRep.class + "_" + color;
+                if (agentState.getMemoryFragment(correspondingPacket) != null)
+                    return true;
+            }
+        }
+        return false;
+    }
+
 }

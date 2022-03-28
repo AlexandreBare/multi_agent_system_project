@@ -132,6 +132,10 @@ public interface AgentState {
      */
     int getY();
 
+    /**
+     * Get the coordinates of this agents current position
+     */
+    Coordinate getPosition();
 
     /**
      * Get the name of this agent.
@@ -228,7 +232,7 @@ public interface AgentState {
     void memorizeAllPerceivableRepresentations();
 
     /**
-     * Forget all representations that are not present anymore in the agent's perception area
+     * Forx all representations that are not present anymore in the agent's perception area
      * (because a packet was picked up by another agent for example)
      *
      * Note: for now, only remove packets from memory has it is the only movable representation
