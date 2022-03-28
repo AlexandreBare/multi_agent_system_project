@@ -1,6 +1,5 @@
 package agent.behavior.wall_hugger;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,9 +8,8 @@ import agent.AgentCommunication;
 import agent.AgentState;
 import agent.behavior.Behavior;
 import environment.Coordinate;
-import environment.Perception;
 
-public class Wanderer extends Behavior {
+public class Wander extends Behavior {
 
     @Override
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
@@ -36,7 +34,6 @@ public class Wanderer extends Behavior {
             var perception = agentState.getPerception();
             int x = move.getX();
             int y = move.getY();
-            agentState.memorizeAllPerceivableRepresentations();
 
             // If the area is null, it is outside the bounds of the environment
             //  (when the agent is at any edge for example some moves are not possible)

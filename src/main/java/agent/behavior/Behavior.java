@@ -310,11 +310,16 @@ abstract public class Behavior {
         List<Coordinate> path = new ArrayList<>();
         while (!agentPos.equals(target)){
             Coordinate newPos = stepToTarget(agentPos,target);
+            System.out.println("new pos " + newPos);
+            System.out.println("agent pos " + agentPos);
             if (newPos.equals(target))
                 return path;
             else if (!isWalkableInMemory(agent,newPos) || path.contains(newPos)) {
+                System.out.println("target " + target);
+                System.out.println("new pos " + newPos);
                 if (agentPos == previousPos){
                     Coordinate diff = agentPos.diff(target);
+
                     int x = diff.getX() == 0 ? 0 : diff.getX()/Math.abs(diff.getX());
                     int y = diff.getY() == 0 ? 0 : diff.getY()/Math.abs(diff.getY());
                     Coordinate pseudoPreviousPos = new Coordinate(agentPos.getX()-x, agentPos.getY()-y);
@@ -335,7 +340,10 @@ abstract public class Behavior {
 
     public Coordinate hugWall(AgentState agentState, Coordinate prevPos, Coordinate currentPos){
         Perception perception = agentState.getPerception();
+        System.out.println(currentPos);
+        System.out.println(prevPos);
         Coordinate front = currentPos.diff(prevPos).add(currentPos);
+        System.out.println(front);
         Coordinate right = getCoordinateToTheRight(perception,front,currentPos.diff(agentState.getPosition()));
 
         for(int i = 0; i<8; i++){
@@ -349,7 +357,9 @@ abstract public class Behavior {
     public Coordinate getCoordinateToTheRight(Perception perception, Coordinate front, Coordinate offset){
         CellPerception[] neighbours = perception.getNeighboursInOrder();
         int neighbourToTheRight =-1;
-        front.diff(offset);
+        front = front.diff(offset);
+        System.out.println(front);
+        System.out.println(perception.getSelfX() + " " + perception.getSelfY());
         for(int i= 0; i<8; i++){
             if (neighbours[i].getX() == front.getX() && neighbours[i].getY() == front.getY())
                 neighbourToTheRight = (i+1)%8;
@@ -362,11 +372,12 @@ abstract public class Behavior {
         // get the difference
         int xDiff = target.getX() - pos.getX();
         int yDiff = target.getY() - pos.getY();
+        System.out.println(xDiff +" _ " + yDiff);
 
         int xStep = xDiff == 0 ? 0 : xDiff/Math.abs(xDiff);
         int yStep = yDiff == 0 ? 0 : yDiff/Math.abs(yDiff);
 
-        return new Coordinate(xStep,yStep);
+        return new Coordinate(xStep+ pos.getX(),yStep+ pos.getY());
     }
 
     public boolean isWalkableInMemory(AgentState agentState,  Coordinate pos){
