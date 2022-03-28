@@ -1,5 +1,6 @@
 package environment.world.wall;
 
+import environment.Coordinate;
 import environment.Representation;
 
 /**
@@ -15,6 +16,15 @@ public abstract class WallRep extends Representation {
      */
     protected WallRep(int x, int y) {
         super(x, y);
+    }
+
+    /**
+     * Initializes a new WallRep instance
+     *
+     * @param coordinates  Coordinates of the Wall this representation represents
+     */
+    public WallRep(Coordinate coordinates) {
+        super(coordinates.getX(), coordinates.getY());
     }
 
     public char getTypeChar() {

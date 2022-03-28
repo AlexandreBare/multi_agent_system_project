@@ -1,7 +1,6 @@
 package agent;
 
 import java.lang.*;
-//import java.io.*;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
-import com.google.common.collect.Table;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
@@ -27,6 +25,7 @@ import environment.world.destination.DestinationRep;
 import environment.world.generator.PacketGenerator;
 import environment.world.packet.Packet;
 import environment.world.packet.PacketRep;
+import environment.world.wall.SolidWallRep;
 import environment.world.wall.WallRep;
 import support.ActionOutcome;
 import support.CommunicationOutcome;
@@ -495,6 +494,12 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         return this.getAgent().getY();
     }
 
+    /**
+     * Get the coordinates of this agent.
+     */
+    @Override
+    public Coordinate getCoordinates() { return new Coordinate(this.getX(), this.getY()); }
+
 
     /**
      * Get the name of this agent.
@@ -741,17 +746,6 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     }
 
 
-    private static String rep2Initials(String rep){
-        if (rep.equals(PacketRep.class.toString()))
-            return "P";
-        if (rep.equals(DestinationRep.class.toString()))
-            return "D";
-        if (rep.equals(WallRep.class.toString()))
-            return "W";
-
-        return rep.substring(0, 1).toUpperCase();
-    }
-
     /**
      * Print the world as known by the agent (from his memory).
      *
@@ -804,11 +798,11 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
                 String dataFragment = this.getMemoryFragment(key);
                 String[] representationAndColor = AgentState.memoryKey2Rep(key);
                 String representation = representationAndColor[0];
-                String representationInitials = rep2Initials(representation);
+                String representationInitials = Representation.rep2Initials(representation);
                 String color = null;
                 if (representationAndColor.length == 2) {
                     color = representationAndColor[1];
-                    representationInitials += "_" + rep2Initials(color);
+                    representationInitials += "_" + Representation.rep2Initials(color);
                 }
 
                 List<Coordinate> coordinatesList = Coordinate.string2Coordinates(dataFragment);
@@ -916,8 +910,8 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         }else if (cell.containsPacket()){
             PacketRep packetRep = cell.getRepOfType(PacketRep.class);
             key = PacketRep.class + "_" + MyColor.getName(packetRep.getColor());
-        }else if (cell.containsWall()){
-            key = WallRep.class.toString();
+        }else {
+            key = "EmptyRep";
         }
 
         return key;
@@ -982,7 +976,7 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
      * Forget all representations that are not present anymore in the agent's perception area
      * (because a packet was picked up by another agent for example)
      *
-     * Note: for now, only remove packets from memory has it is the only movable representation
+     * Note: for now, only remove packets from memory as it is the only movable representation
      */
     @Override
     public void forgetAllUnperceivableRepresentations(){
@@ -1000,7 +994,7 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
                 if (cell != null && !cell.containsPacket()) {
                     Coordinate cellCoordinates = new Coordinate(cell.getX(), cell.getY());
                     // Remove the potential representation of the packet that the agent has in memory
-                    this.removeRepFromMemory(cellCoordinates, PacketRep.class.toString());
+                    this.removeFromMemory(cellCoordinates, PacketRep.class.toString());
                 }
             }
         }
@@ -1023,22 +1017,22 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
      * @param cell    The cell from which the representation must be removed.
      */
     @Override
-    public void removeRepFromMemory(CellPerception cell) {
+    public void removeFromMemory(CellPerception cell) {
         Coordinate cellCoordinates = new Coordinate(cell.getX(), cell.getY());
         String representationKey = rep2MemoryKey(cell);
-        this.removeRepFromMemory(cellCoordinates, representationKey);
+        this.removeFromMemory(cellCoordinates, representationKey);
     }
 
     /**
-     * Removes a specific representation on a given cell from this agent's memory.
+     * Removes specific coordinates stored at a subkey from this agent's memory.
      *
      * @param cellCoordinates    The cell coordinates from which the representation must be removed.
-     * @param rep                The string of the representation to remove from memory.
+     * @param subkey             The substring of a key to remove from memory.
      */
     @Override
-    public void removeRepFromMemory(Coordinate cellCoordinates, String rep) {
-        for(String key: this.getMemoryFragmentKeysContaining(rep)){
-            removeCoordinatesFromMemoryByKey(cellCoordinates, key);
+    public void removeFromMemory(Coordinate cellCoordinates, String subkey) {
+        for(String key: this.getMemoryFragmentKeysContaining(subkey)){
+            this.removeCoordinatesFromMemoryByKey(cellCoordinates, key);
         }
     }
 
@@ -1050,7 +1044,7 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
      * @param key                The key at which is currently stored the coordinates to remove.
      */
     private void removeCoordinatesFromMemoryByKey(Coordinate cellCoordinates, String key){
-        StringBuilder newData = new StringBuilder();
+        String newData = "";
         // If a representation of the same key has already been saved in memory
         if (this.getMemoryFragmentKeys().contains(key)) {
             String data = this.getMemoryFragment(key); // Get the string stored at this key
@@ -1058,16 +1052,16 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
             for (Coordinate coordinates : Coordinate.string2Coordinates(data)){
                 // We only copy as a string the coordinates that should not be removed
                 if (! coordinates.equals(cellCoordinates)){
-                    newData.append(coordinates.toString());
+                    newData += coordinates.toString();
                 }
             }
             this.removeMemoryFragment(key); // Remove the memory fragment we have to modified
         }
 
         // If there is still some data to save at the given key after removing the given coordinates
-        if (!newData.toString().equals("")) {
+        if (!newData.equals("")) {
             // Save the destination coordinates to memory
-            this.addMemoryFragment(key, newData.toString());
+            this.addMemoryFragment(key, newData);
         }
     }
 
@@ -1107,6 +1101,56 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
             }
         }
         return matchingKeys;
+    }
+
+    /**
+     * Retrieve the representations and potential colors from all memory fragments that store them
+     * and create cell perception instances out of them.
+     *
+     * @return          A set of cell perceptions build out of their fragments stored in memory
+     */
+    public Set<CellPerception> memory2Cells(){
+        Set<CellPerception> cells = new HashSet<>();
+        for(String key: this.getMemoryFragmentKeysContaining("Rep")){
+            cells.addAll(this.memoryKey2Cells(key));
+        }
+        return cells;
+    }
+
+    /**
+     * Retrieve the representations and potential colors from a given memory key and create cell perception instances
+     * out of them.
+     *
+     * @param key       The memory key with which a representation is stored
+     *
+     * @return          A set of cell perceptions build out from their fragments stored in memory
+     */
+    public Set<CellPerception> memoryKey2Cells(String key){
+        String memoryFragment = this.getMemoryFragment(key);
+        List<Coordinate> coordinatesList = Coordinate.string2Coordinates(memoryFragment);
+
+        String[] representationAndColor = AgentState.memoryKey2Rep(key);
+        String representation = representationAndColor[0];
+        Color color = null;
+        if (representationAndColor.length > 1)
+            color = Color.getColor(representationAndColor[1]);
+
+        Set<CellPerception> cells = new HashSet<>();
+
+        for (Coordinate coordinates: coordinatesList) {
+            CellPerception cell = new CellPerception(coordinates);
+            if (representation.equals(PacketRep.class.toString()))
+                cell.addRep(new PacketRep(coordinates, color));
+            else if (representation.equals(DestinationRep.class.toString()))
+                cell.addRep(new DestinationRep(coordinates, color));
+//            else if (representation.equals(WallRep.class.toString()))
+//                cell.addRep(new SolidWallRep(coordinates));
+
+
+            cells.add(cell);
+        }
+
+        return cells;
     }
 
 

@@ -51,6 +51,17 @@ public class CellPerception {
     }
 
     /**
+     * Constructor.
+     *
+     * @param coordinates    The (absolute) coordinates of this CellPerception
+     */
+    public CellPerception(Coordinate coordinates) {
+        this.x = coordinates.getX();
+        this.y = coordinates.getY();
+        this.reps = new ArrayList<>();
+    }
+
+    /**
      * Adds a Representation to this CellPerception.
      *
      * @param rep The Representation to be added.
@@ -241,4 +252,9 @@ public class CellPerception {
     public int getY() {
         return this.y;
     }
+
+    public Coordinate getCoordinates() {
+        return new Coordinate(this.getX(), this.getY());
+    }
+
 }

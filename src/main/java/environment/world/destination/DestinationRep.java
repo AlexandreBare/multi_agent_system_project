@@ -2,6 +2,7 @@ package environment.world.destination;
 
 import java.awt.Color;
 
+import environment.Coordinate;
 import environment.Representation;
 
 /**
@@ -20,6 +21,17 @@ public class DestinationRep extends Representation {
      */
     protected DestinationRep(int x, int y, Color aColor) {
         super(x, y);
+        setColor(aColor);
+    }
+
+    /**
+     * Initializes a new DestinationRep instance
+     *
+     * @param  coordinates  Coordinates of the Destination this representation represents
+     * @param  aColor       Color of the Destination this representation represents
+     */
+    public DestinationRep(Coordinate coordinates, Color aColor) {
+        super(coordinates.getX(), coordinates.getY());
         setColor(aColor);
     }
 

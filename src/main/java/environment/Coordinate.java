@@ -1,15 +1,10 @@
 package environment;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.util.stream.Collectors;
 
 import util.Pair;
 
@@ -40,6 +35,34 @@ public class Coordinate extends Pair<Integer, Integer> {
             coordinates.add(new Coordinate(x, y)); // Store the coordinates in a list
         }
         return coordinates;
+    }
+
+    //    public static Set<Coordinate> string2Coordinates(String data){
+//        Pattern p = Pattern.compile("\\d+"); // A pattern to search for int's...
+//        Matcher m = p.matcher(data); // ... in the given string: data
+//        Set<Coordinate> coordinates = new HashSet<>();
+//        while (m.find()) { // As long as a int can be found in this string
+//            int x = Integer.parseInt(m.group()); // Save the x-coordinate
+//            m.find(); // Find the next int
+//            int y = Integer.parseInt(m.group()); // Save the y-coordinate
+//            coordinates.add(new Coordinate(x, y)); // Store the coordinates in a list
+//        }
+//        return coordinates;
+//    }
+
+    /**
+     * Converts a list of coordinates to a string of "(%d, %d)...(%d, %d)" format
+     *
+     * @param coordinatesList   The list of coordinates
+     *
+     * @return      The list of coordinates converted to the aforementioned string format
+     */
+    public static String coordinates2String(List<Coordinate> coordinatesList){
+        String data = "";
+        for(Coordinate coordinate: coordinatesList){
+            data += coordinate.toString();
+        }
+        return data;
     }
 
     public int getX() {

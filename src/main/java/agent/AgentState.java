@@ -9,9 +9,7 @@ import agent.behavior.BehaviorState;
 import environment.CellPerception;
 import environment.Coordinate;
 import environment.Perception;
-import environment.Representation;
 import environment.world.packet.Packet;
-
 
 
 public interface AgentState {
@@ -132,6 +130,11 @@ public interface AgentState {
      */
     int getY();
 
+    /**
+     * Get the coordinates of this agent.
+     */
+    Coordinate getCoordinates();
+
 
     /**
      * Get the name of this agent.
@@ -249,15 +252,15 @@ public interface AgentState {
      *
      * @param cell    The cell from which the representation must be removed.
      */
-    void removeRepFromMemory(CellPerception cell);
+    void removeFromMemory(CellPerception cell);
 
     /**
-     * Removes a specific representation on a given cell from this agent's memory.
+     * Removes specific coordinates stored at a subkey from this agent's memory.
      *
      * @param cellCoordinates    The cell coordinates from which the representation must be removed.
-     * @param rep                The string of the representation to remove from memory.
+     * @param subkey             The substring of a key to remove from memory.
      */
-    void removeRepFromMemory(Coordinate cellCoordinates, String rep);
+    void removeFromMemory(Coordinate cellCoordinates, String subkey);
 
     /**
      * Get a memory fragment with given key from this agent's memory.
@@ -278,6 +281,24 @@ public interface AgentState {
      * @return          A set of memory fragment keys matching the subkey
      */
     Set<String> getMemoryFragmentKeysContaining(String subkey);
+
+    /**
+     * Retrieve the representations and potential colors from all memory fragments that store them
+     * and create cell perception instances out of them.
+     *
+     * @return          A set of cell perceptions build out of their fragments stored in memory
+     */
+    Set<CellPerception> memory2Cells();
+
+    /**
+     * Retrieve the representations and potential colors from a given memory key and create cell perception instances
+     * out of them.
+     *
+     * @param key       The memory key with which a representation is stored
+     *
+     * @return          A set of cell perceptions build out from their fragments stored in memory
+     */
+    Set<CellPerception> memoryKey2Cells(String key);
 
     /**
      * Get the current number of memory fragments in memory of this agent.

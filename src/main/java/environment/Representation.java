@@ -1,5 +1,9 @@
 package environment;
 
+import environment.world.destination.DestinationRep;
+import environment.world.packet.PacketRep;
+import environment.world.wall.WallRep;
+
 /**
  * A class for representations being data objects originating from Items.
  * They contain all values concerning their originating item.
@@ -58,9 +62,19 @@ abstract public class Representation {
      */
     abstract public char getTypeChar();
 
-
     /**
      * Check if the representation is walkable.
      */
     abstract public boolean isWalkable();
+
+    public static String rep2Initials(String rep){
+        if (rep.equals(PacketRep.class.toString()))
+            return "P";
+        if (rep.equals(DestinationRep.class.toString()))
+            return "D";
+        if (rep.equals(WallRep.class.toString()))
+            return "W";
+
+        return rep.substring(0, 1).toUpperCase();
+    }
 }

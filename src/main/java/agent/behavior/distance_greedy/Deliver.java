@@ -6,7 +6,7 @@ import agent.AgentState;
 import agent.behavior.Behavior;
 import environment.CellPerception;
 import environment.Coordinate;
-import environment.MovementManager;
+import agent.utils.MovementManager;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.Packet;
 import util.MyColor;

@@ -1,6 +1,6 @@
-package environment;
+package agent.utils;
 
-import agent.AgentState;
+import environment.Coordinate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,25 +86,5 @@ public class MovementManager {
         int distance = direction2Destination.distanceFrom(move, method);
         return distance;
     }
-
-//    private int score(Coordinate move, Coordinate direction2Destination, AgentState agentState, String method){
-//        String data = agentState.getMemoryFragment("Positions");
-//        int recencyPenalty = 0;
-//        if (data != null) {
-//            List<Coordinate> previousPositions = Coordinate.string2Coordinates(data);
-//            Coordinate newPosition = new Coordinate(agentState.getX() + move.getX(), agentState.getY() + move.getY());
-//
-//            for (int i = 0; i < previousPositions.size(); i++) {
-//
-//                if (previousPositions.get(i).equals(newPosition)) {
-//                    recencyPenalty = 20 - i;
-//                    break;
-//                }
-//            }
-//        }
-//
-//        int distance = direction2Destination.distanceFrom(move, method);
-//        return distance;
-//    }
 }
 

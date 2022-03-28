@@ -2,6 +2,7 @@ package environment.world.packet;
 
 import java.awt.Color;
 
+import environment.Coordinate;
 import environment.Representation;
 
 /**
@@ -20,6 +21,17 @@ public class PacketRep extends Representation {
      */
     protected PacketRep(int x, int y, Color aColor) {
         super(x, y);
+        setColor(aColor);
+    }
+
+    /**
+     * Initializes a new PacketRep instance
+     *
+     * @param coordinates   Coordinates of the Packet this representation represents
+     * @param aColor        Color of the Packet this representation represents
+     */
+    public PacketRep(Coordinate coordinates, Color aColor) {
+        super(coordinates.getX(), coordinates.getY());
         setColor(aColor);
     }
 

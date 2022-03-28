@@ -6,7 +6,7 @@ import agent.AgentState;
 import agent.behavior.Behavior;
 import environment.CellPerception;
 import environment.Coordinate;
-import environment.MovementManager;
+import agent.utils.MovementManager;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.PacketRep;
 import util.MyColor;
@@ -116,7 +116,7 @@ public class Pickup extends Behavior {
 
             // If the agent knows a destination that can accept the current packet (i.e. same color)
             if (agentState.getMemoryFragmentKeys().contains(destinationKey)) {
-                agentState.removeRepFromMemory(packetCell); // Remove the packet from memory as we will pick it up
+                agentState.removeFromMemory(packetCell); // Remove the packet from memory as we will pick it up
                 agentAction.pickPacket(packetCell.getX(), packetCell.getY()); // Pick the packet at hand
                 return;
             }
