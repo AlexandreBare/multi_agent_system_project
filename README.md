@@ -3,7 +3,7 @@
 
 This project contains code for the PacketWorld Application, a simple Multi-agent framework to develop and evaluate pickup and delivery problems.
 
-<img src="/res/packetworld.gif" alt="The Packet World" width="350">
+<img src="./res/packetworld.gif" alt="The Packet World" width="350">
 
 [//]: # (![The Packet World]&#40;/res/packetworld.gif&#41;)
 
