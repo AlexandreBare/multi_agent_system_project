@@ -444,7 +444,7 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
 
     private void concludeWithCondition(boolean condition, Outcome onSuccess) {
         var onFail = this.generateActionOutcome(getAgent().getBatteryState() > 0 ?
-                new InfSkip(getEnvironment(), getActiveItemID()) : new InfNOP(this.getEnvironment()));
+                new InfSkip(getEnvironment(), getActiveItemID()) : new InfNOP(this.getEnvironment(), this.getActiveItemID()));
 
         this.concludePhaseWith(condition ? onSuccess : onFail);
         this.committedAction = true;

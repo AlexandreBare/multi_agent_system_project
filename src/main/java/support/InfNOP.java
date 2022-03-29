@@ -7,8 +7,8 @@ import util.event.AgentActionEvent;
 
 public class InfNOP extends Influence {
 
-    public InfNOP(Environment environment) {
-        super(environment, -1, -1, null, null);
+    public InfNOP(Environment environment, ActiveItemID id) {
+        super(environment, -1, -1, id, null);
     }
 
     @Override
