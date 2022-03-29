@@ -37,7 +37,7 @@ public class LawPutPacket implements Law {
      */
     public boolean apply(Influence inf) {
         var agent = inf.getEnvironment().getAgentWorld().getAgent(inf.getID());
-        return CollisionMatrix.packetCanStandOn(env, inf.getX(), inf.getY())
+        return CollisionMatrix.packetCanStandOn(env, inf.getX(), inf.getY(), inf.getColor())
                 && Environment.chebyshevDistance(inf.getX(), inf.getY(), agent.getX(), agent.getY()) <= 1;
     }
 

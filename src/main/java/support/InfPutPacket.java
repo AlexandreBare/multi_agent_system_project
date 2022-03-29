@@ -1,5 +1,7 @@
 package support;
 
+import java.awt.Color;
+
 import environment.ActiveItemID;
 import environment.Environment;
 import environment.world.packet.Packet;
@@ -16,7 +18,8 @@ public class InfPutPacket extends Influence {
      * Cfr. super
      */
     public InfPutPacket(Environment environment, int x, int y, ActiveItemID agent) {
-        super(environment, x, y, agent, null);
+        super(environment, x, y, agent, environment.getAgentWorld().getAgent(agent).getCarry()
+                .orElse(new Packet(x, y, Color.black)).getColor());
     }
 
     /**
