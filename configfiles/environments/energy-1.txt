@@ -1,0 +1,253 @@
+width 16
+height 16
+
+nbAgents 3
+environment.world.agent.Agent
+nbArgs 5
+Integer 1
+Integer 1
+Integer 2
+Integer 1
+String "Tom"
+environment.world.agent.Agent
+nbArgs 5
+Integer 1
+Integer 14
+Integer 2
+Integer 2
+String "Zoe"
+environment.world.agent.Agent
+nbArgs 5
+Integer 14
+Integer 8
+Integer 2
+Integer 3
+String "Jef"
+
+nbPackets 40
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 7
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 9
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 1
+Integer 7
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 1
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 1
+Integer 9
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 2
+Integer 9
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 3
+Integer 0
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 4
+Integer 0
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 4
+Integer 13
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 4
+Integer 14
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 5
+Integer 4
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 5
+Integer 5
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 5
+Integer 6
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 6
+Integer 5
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 7
+Integer 1
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 7
+Integer 2
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 0
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 1
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 2
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 8
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 1
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 13
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 14
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 10
+Integer 14
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 0
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 10
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 11
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 12
+Integer 5
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 12
+Integer 11
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 13
+Integer 2
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 13
+Integer 3
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 13
+Integer 5
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 14
+Integer 1
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 14
+Integer 2
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 14
+Integer 3
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 15
+Integer 1
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 15
+Integer 2
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 15
+Integer 3
+String "blue"
+
+nbDestinations 3
+environment.world.destination.Destination
+nbArgs 3
+Integer 0
+Integer 11
+String "blue"
+environment.world.destination.Destination
+nbArgs 3
+Integer 4
+Integer 11
+String "red"
+environment.world.destination.Destination
+nbArgs 3
+Integer 6
+Integer 15
+String "green"
+
+nbWalls 0
+
+nbEnergyStations 1
+environment.world.energystation.EnergyStation
+nbArgs 3
+Integer 0
+Integer 4
+Integer 4
