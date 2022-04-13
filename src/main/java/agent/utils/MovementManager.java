@@ -1,6 +1,9 @@
 package agent.utils;
 
+import agent.AgentState;
+import environment.CellPerception;
 import environment.Coordinate;
+import environment.world.gradient.GradientRep;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -14,8 +17,10 @@ public class MovementManager {
     ));
 
     public List<Coordinate> getMoves(){
-        return moves;
+        return new ArrayList<>(moves);
     }
+
+    public int getNbMoves(){ return moves.size(); }
 
     /**
      * Shuffle the list of moves
@@ -85,6 +90,74 @@ public class MovementManager {
     private int score(Coordinate move, Coordinate direction2Destination, String method){
         int distance = direction2Destination.distanceFrom(move, method);
         return distance;
+    }
+
+    /**
+     * Sort the available moves according to the agent state and a given method
+     *
+     * @param agentState     The agent state
+     * @param method         Method:
+     *                       "DecreasingGradientValue": the gradient value of the cells the agent would arrive to
+     */
+    public void sort(AgentState agentState, String method) {
+        // Map all moves to their scores via a scoring function
+        List<Integer> scores = moves.stream().map(c -> this.score(c, agentState, method)).toList();
+        scores = new ArrayList<>(scores);
+        if (method == "DecreasingGradientValue") {
+            Iterator<Integer> scoresIterator = scores.iterator();
+            Iterator<Coordinate> movesIterator = moves.iterator();
+
+            while (scoresIterator.hasNext() && movesIterator.hasNext()) {
+                int score = scoresIterator.next();
+                movesIterator.next();
+                if (score > 0){ //>=
+                    scoresIterator.remove();
+                    movesIterator.remove();
+                }
+            }
+        }
+
+        // Create a list of indexes of the moves
+        List<Integer> indexes = new ArrayList<>();
+        for (int i = 0; i < moves.size(); i++) {
+            indexes.add(i);
+        }
+
+        // Sort the indexes in the crescent order of the scores of the moves they index
+        List<Integer> finalScores = Collections.unmodifiableList(scores);
+        indexes.sort((i1, i2) -> Float.compare(finalScores.get(i1), finalScores.get(i2)));
+
+        // Sort the moves following this new order of indexes
+        moves = indexes.stream().map(moves::get).collect(Collectors.toList());
+    }
+
+    /**
+     * A method that scores the moves (here according to some measure of distance)
+     * The lower the score, the more desirable is the move.
+     *
+     * @param move                      The move to score
+     * @param agentState                The agent state
+     * @param method                    Method:
+     *                                  "DecreasingGradientValue": the gradient value of the cells the agent would arrive to
+     *
+     * @return                          The score of a given move
+     */
+    private int score(Coordinate move, AgentState agentState, String method){
+        CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0,0);
+        GradientRep agentCellGradientRep = agentCell.getGradientRepresentation().orElse(null);
+        if (agentCellGradientRep == null)
+            return Integer.MAX_VALUE;
+
+        if(method == "DecreasingGradientValue") {
+            CellPerception agentNeighborCell = agentState.getPerception().getCellPerceptionOnRelPos(move.getX(), move.getY());
+            if (agentNeighborCell == null)
+                return Integer.MAX_VALUE;
+            GradientRep neighborCellGradientRep = agentNeighborCell.getGradientRepresentation().orElse(null);
+            if (neighborCellGradientRep == null)
+                return Integer.MAX_VALUE;
+            return neighborCellGradientRep.getValue() - agentCellGradientRep.getValue();
+        }
+        return 0;
     }
 }
 

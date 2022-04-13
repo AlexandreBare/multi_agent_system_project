@@ -1,0 +1,76 @@
+description "Pick up the closest packet and deliver it to the closest destination with A*. Recharges battery to the nearest station following gradient fields"
+
+
+# ------------------------------------------------
+# The amount of the behavior states the agent has
+# ------------------------------------------------
+nbStates 4                          # 4 behavior states
+
+
+# Enumeration of the behavior agent states
+1 agent.behavior.charging_greedy.Pickup
+nbArgs 0
+2 agent.behavior.charging_greedy.Deliver
+nbArgs 0
+3 agent.behavior.charging_greedy.FindCharger
+nbArgs 0
+4 agent.behavior.charging_greedy.Charge
+nbArgs 0
+
+
+
+# ---------------------------------------------------------------
+# The amount of behavior changes for the agent
+# ---------------------------------------------------------------
+nbChanges 5
+
+# First change, from behavior with ID 1 to behavior with ID 2
+agent.behavior.charging_greedy.change.HasPacket
+nbArgs 0
+priority 0 # Higher value −> higher priority (in case of multiple satisfied change conditions from current behavior state)
+source 1 # ID of starting behavior
+target 2 # ID of resulting behavior
+
+# Second change, from behavior with ID 2 to behavior with ID 1
+agent.behavior.charging_greedy.change.HasNoPacket
+nbArgs 0
+priority 0
+source 2
+target 1
+
+agent.behavior.charging_greedy.change.NeedsBattery
+nbArgs 0
+priority 1
+source 1
+target 3
+
+agent.behavior.charging_greedy.change.IsAboveCharger
+nbArgs 0
+priority 2
+source 3
+target 4
+
+agent.behavior.charging_greedy.change.IsFullyCharged
+nbArgs 0
+priority 3
+source 4
+target 1    # Moves to Pickup (although we should maybe consider moving to Deliver if the agent has a packet)
+
+
+#agent.behavior.charging_greedy.change.NeedsBattery
+#nbArgs 0
+#priority 1
+#source 2
+#target 3
+
+#agent.behavior.charging_greedy.change.IsAboveCharger
+#nbArgs 0
+#priority 2
+#source 1
+#target 4
+
+#agent.behavior.charging_greedy.change.IsAboveCharger
+#nbArgs 0
+#priority 2
+#source 2
+#target 4
