@@ -60,5 +60,10 @@ public class EnergyStationWorld extends World<EnergyStation> {
     public void placeItem(EnergyStation energyStation) {
         putItem(energyStation);
         getEnvironment().addActiveItem(energyStation);
+
+        // TODO: use the line below (adjust method if desired), 
+        //       if you want to use gradients
+        // getEnvironment().getWorld(GradientWorld.class)
+        //     .addGradientsWithStartLocation(...);
     }
 }

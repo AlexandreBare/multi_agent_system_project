@@ -114,7 +114,9 @@ public interface AgentAction {
 
 
     /**
-     * Pick up a specified number of crumbs in the environment from the given coordinate. 
+     * Pick up a specified number of crumbs in the environment from the given coordinate.
+     * If the specified number of crumbs to remove exceeds the actual number of crumbs, 
+     * all crumbs will be removed.
      *
      * @param x       The x coordinate of the target area.
      * @param y       The y coordinate of the target area.

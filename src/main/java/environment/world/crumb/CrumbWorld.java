@@ -58,7 +58,8 @@ public class CrumbWorld extends World<Crumb> {
             if (crumb.getNumber() > number) {
                 crumb.setNumber(crumb.getNumber() - number);
             } else {
-                this.logger.severe("Not enough crumbs in this Crumb.");
+                // Remove all crumbs
+                this.free(x, y);
             }
         } else {
             this.logger.severe("No Crumb to pick from");
