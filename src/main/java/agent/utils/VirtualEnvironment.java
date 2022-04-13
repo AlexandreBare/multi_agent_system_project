@@ -3,6 +3,7 @@ package agent.utils;
 import environment.CellPerception;
 import environment.Coordinate;
 import environment.world.wall.SolidWallRep;
+import environment.world.wall.WallRep;
 
 import java.util.*;
 
@@ -38,10 +39,11 @@ public class VirtualEnvironment {
      */
     public CellPerception getCell(Coordinate coordinates){
         CellPerception cell = coordinates2Cells.get(coordinates);
-        if(cell==null) { // unperceivable and unknown cells (i.e. null cells) are considered to be solid walls
-            cell = new CellPerception(coordinates);
-            cell.addRep(new SolidWallRep(coordinates));
-        }
+//        if(cell==null) { // unperceivable and unknown cells (i.e. null cells) are considered to be solid walls
+//            System.out.println(coordinates);
+//            cell = new CellPerception(coordinates);
+//            cell.addRep(new SolidWallRep(coordinates));
+//        }
         return cell;
     }
 
@@ -59,11 +61,13 @@ public class VirtualEnvironment {
             // Compute the next coordinates, cell and state the agent will move to
             Coordinate nextCoordinates = currentCoordinates.add(move);
             CellPerception nextCell = this.getCell(nextCoordinates);
-            VirtualState nextState = new VirtualState(state, nextCell);
+            if (nextCell != null) {
+                VirtualState nextState = new VirtualState(state, nextCell);
 
-            // If the cell is walkable or correspond to a terminal state
-            if (nextCell.isWalkable() || nextState.isTerminal()) {
-                nextStates.add(nextState); // Add it to the list of next available fictive states
+                // If the cell is walkable or correspond to a terminal state
+                if (nextCell.isWalkable() || nextState.isTerminal()) {
+                    nextStates.add(nextState); // Add it to the list of next available fictive states
+                }
             }
         }
         return nextStates;

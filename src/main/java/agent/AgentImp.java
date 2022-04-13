@@ -910,6 +910,9 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         }else if (cell.containsPacket()){
             PacketRep packetRep = cell.getRepOfType(PacketRep.class);
             key = PacketRep.class + "_" + MyColor.getName(packetRep.getColor());
+        }else if (cell.containsWall()) {
+            WallRep wallRep = cell.getRepOfType(WallRep.class);
+            key = WallRep.class.toString();
         }else {
             key = "EmptyRep";
         }
@@ -1143,8 +1146,8 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
                 cell.addRep(new PacketRep(coordinates, color));
             else if (representation.equals(DestinationRep.class.toString()))
                 cell.addRep(new DestinationRep(coordinates, color));
-//            else if (representation.equals(WallRep.class.toString()))
-//                cell.addRep(new SolidWallRep(coordinates));
+            else if (representation.equals(WallRep.class.toString()))
+                cell.addRep(new SolidWallRep(coordinates));
 
 
             cells.add(cell);

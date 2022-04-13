@@ -11,6 +11,7 @@ import environment.Coordinate;
 import agent.utils.MovementManager;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.Packet;
+import environment.world.wall.WallRep;
 import util.MyColor;
 
 import java.awt.*;
@@ -124,6 +125,7 @@ public class Deliver extends Behavior {
             // Retrieve the current path the agent has to follow to get to his destination
             String memoryFragment = agentState.getMemoryFragment("ClosestDestinationPath");
             List<Coordinate> path2Destination = Coordinate.string2Coordinates(memoryFragment);
+
             // Retrieve and remove from memory the next cell we should go to in this path
             Coordinate nextCoordinatesInPath = path2Destination.get(0);
             agentState.removeFromMemory(nextCoordinatesInPath, "ClosestDestinationPath");
