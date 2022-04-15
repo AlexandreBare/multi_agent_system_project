@@ -40,12 +40,18 @@ public class PathFinder {
      * @return  the Chebyshev distance to the closest destination (admissible heuristic -> ensures optimality)
      */
     public static int heuristic(VirtualState state){
-        CellPerception cell = state.getCurrentCell();
-        Set<CellPerception> destinationCells = state.getDestinationCells();
+        CellPerception currentCell = state.getCurrentCell();
+        Set<CellPerception[]> destinationCells = state.getDestinationCells();
         List<Integer> distances = new ArrayList<>();
         // Compute the distances between the different possible destinations
-        for(CellPerception destinationCell: destinationCells){
-            distances.add(cell.getCoordinates().distanceFrom(destinationCell.getCoordinates()));
+        for(CellPerception[] destinationCellList: destinationCells){
+            int dist = 0;
+            CellPerception startingCell = currentCell;
+            for(CellPerception destinationCell: destinationCellList) {
+                dist += startingCell.getCoordinates().distanceFrom(destinationCell.getCoordinates());
+                startingCell = destinationCell;
+            }
+            distances.add(dist);
         }
         return Collections.min(distances); // return the distance to the closest destination
     }
@@ -63,14 +69,15 @@ public class PathFinder {
 
     /**
      * Run the A* algorithm to find the shortest path
-     * from a single source cell to many possible destination cells
+     * from a single source cell to many possible destination cells with potentially many destination cells to go to
+     * before reaching the terminal cell
      *
      * @param startingCell          the starting cell
-     * @param destinationCells      the possible destination cells
+     * @param destinationCells      the possible set of lists of destination cells
      *
      * @return      the list of coordinates pairs composing the optimal path to the closest destination
      */
-    public List<Coordinate> astar(CellPerception startingCell, Set<CellPerception> destinationCells){
+    public List<Coordinate> astar(CellPerception startingCell, Set<CellPerception[]> destinationCells){
         // Starting virtual state
         VirtualState state = new VirtualState(startingCell, destinationCells);
         // the set of already visited cells (avoid cycles when browsing the cells)

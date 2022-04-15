@@ -10,7 +10,8 @@ import java.util.*;
  */
 public class VirtualState {
     private CellPerception currentCell; // current cell the fictive agent is on
-    private Set<CellPerception> destinationCells; // the destination cells the agent should go to
+    private Set<CellPerception[]> destinationCells; // the destination cells the agent should go to,
+                                                    // there may be more than one cell the agent has to go to on his way
     private List<Coordinate> path; // the path that the fictive agent has taken to arrive to the current cell coordinates
 
     /**
@@ -20,7 +21,7 @@ public class VirtualState {
      * @param destinationCells  the cells that the agent should go to
      *                          (at least he should go to one of these destination cells)
      */
-    public VirtualState(CellPerception cell, Set<CellPerception> destinationCells){
+    public VirtualState(CellPerception cell, Set<CellPerception[]> destinationCells){
         this.currentCell = cell;
         this.destinationCells = destinationCells;
         this.path = new ArrayList<>();
@@ -34,7 +35,23 @@ public class VirtualState {
      */
     public VirtualState(VirtualState previousState, CellPerception nextCell){
         this.currentCell = nextCell;
-        this.destinationCells = previousState.getDestinationCells();
+        // The set of list of destination cells will be updated if the new virtual state has reached the first destination
+        // in at least of one of the lists. This intermediate destination can be removed to focus on the remaining
+        // destinations of the list.
+        Set<CellPerception[]> oldDestinationCells = previousState.getDestinationCells();
+        this.destinationCells = new HashSet<>();
+        for(CellPerception[] oldDestinationCellList: oldDestinationCells){ // we loop over all lists of destinations in the set
+            CellPerception[] newDestinationCellList;
+            if(oldDestinationCellList[0].equals(currentCell)){ // if the first destination of the current list has been reached
+                // we copy only the last part of this list because as of now the first destination has been reached. It
+                // is therefore not necessary to come back to it anymore.
+                newDestinationCellList = Arrays.copyOfRange(oldDestinationCellList, 1, oldDestinationCellList.length-1);
+            }else {
+                // otherwise, we keep the current list as it was
+                newDestinationCellList = oldDestinationCellList;
+            }
+            this.destinationCells.add(newDestinationCellList); // we update the set of list of destinations
+        }
 
         // the path of the new state is updated from the one of the previous state
         // with the next cell coordinates of this new state
@@ -43,12 +60,16 @@ public class VirtualState {
     }
 
     /**
-     * Whether the current state is a terminal state (i.e. the fictive agent has reached one of the destination cells)
+     * Whether the current state is a terminal state
+     * (i.e. the fictive agent has reached the last cell of one of the lists of destination cells.
+     *  This happens when the list has been reduced to only one cell and the state of this cell has been reached)
      */
     public boolean isTerminal(){
         boolean isTerminal = false;
-        for (CellPerception destinationCell: destinationCells){
-            isTerminal = isTerminal || (currentCell.getCoordinates().equals(destinationCell.getCoordinates()));
+        for (CellPerception[] destinationCellList: destinationCells){
+            isTerminal = isTerminal ||
+                    (destinationCellList.length == 1
+                            && currentCell.getCoordinates().equals(destinationCellList[0].getCoordinates()));
         }
         return isTerminal;
     }
@@ -65,17 +86,16 @@ public class VirtualState {
         return currentCell;
     }
 
-    public Set<CellPerception> getDestinationCells(){
+    public Set<CellPerception[]> getDestinationCells(){
         return destinationCells;
     }
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         VirtualState that = (VirtualState) o;
-        return Objects.equals(currentCell, that.currentCell) && Objects.equals(destinationCells, that.destinationCells);
+        return currentCell.equals(that.currentCell) && destinationCells.equals(that.destinationCells);
     }
 
     @Override
