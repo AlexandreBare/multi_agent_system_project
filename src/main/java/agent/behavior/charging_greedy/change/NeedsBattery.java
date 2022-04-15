@@ -18,8 +18,9 @@ public class NeedsBattery extends BehaviorChange {
         CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0, 0);
         GradientRep gradientRep = agentCell.getGradientRepresentation().orElse(null);
         if (gradientRep != null) {
-            this.needsBattery = agentState.getBatteryState() <= EnergyValues.BATTERY_SAFE_MIN +
-                    (gradientRep.getValue() + rand.nextInt(10, 25)) * EnergyValues.BATTERY_DECAY_STEP_WITH_CARRY;
+            this.needsBattery = agentState.getBatteryState() <= EnergyValues.BATTERY_SAFE_MIN
+                    + gradientRep.getValue() * EnergyValues.BATTERY_DECAY_STEP_WITH_CARRY
+                    + rand.nextInt(1, 5) * 100;
         }
 
     }
