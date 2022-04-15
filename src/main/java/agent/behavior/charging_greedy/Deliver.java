@@ -9,6 +9,7 @@ import agent.utils.PathFinder;
 import agent.utils.VirtualEnvironment;
 import environment.CellPerception;
 import environment.Coordinate;
+import environment.Mail;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.Packet;
 import util.MyColor;
@@ -23,15 +24,30 @@ import java.util.Set;
 public class Deliver extends Behavior {
     Random rand = new Random(42);
 
-
     @Override
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
+        dealWithBeingMaybeStuck(agentState,agentCommunication);
 
+        // recieve incomming messages
+        if(agentCommunication.getNbMessages() != 0)
+            System.out.println("---------- incomming messages for: " + agentState.getName()+ " while delivering ----------");
+        for (int i = 0; i <  agentCommunication.getNbMessages(); i++){
+            // pop the first message
+            Mail message = agentCommunication.getMessage(0);
+            System.out.println(agentState.getName() + ", " + i + ": " + message);
+            agentCommunication.removeMessage(0);
+        }
     }
+
+
 
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
+        if (agentState.getMemoryFragment(requiredMoveKey) != null){
+            tryForceMove(agentState,agentAction);
+            return;
+        }
 
         ///////////// Memorize all representations that the agent can see in his perception area /////////////
         agentState.memorizeAllPerceivableRepresentations();
@@ -162,4 +178,6 @@ public class Deliver extends Behavior {
         // Skip turn
         agentAction.skip();
     }
+
+
 }

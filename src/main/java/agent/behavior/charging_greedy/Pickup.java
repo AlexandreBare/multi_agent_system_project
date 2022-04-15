@@ -21,12 +21,27 @@ public class Pickup extends Behavior {
 
     @Override
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
+        dealWithBeingMaybeStuck(agentState,agentCommunication);
 
+        // recieve incomming messages
+        if(agentCommunication.getNbMessages() != 0)
+            System.out.println("---------- incomming messages for: " + agentState.getName()+ " while picking up ----------");
+        for (int i = 0; i <  agentCommunication.getNbMessages(); i++){
+            // pop the first message
+            System.out.println(agentState.getName() + ", " + i + ": " + agentCommunication.getMessage(0));
+            agentCommunication.removeMessage(0);
+        }
     }
 
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
+        if (agentState.getMemoryFragment(requiredMoveKey) != null){
+            System.out.println(agentState.getName() + "tried to move");
+            tryForceMove(agentState,agentAction);
+            return;
+        }
+
         ///////////// Memorize all representations that the agent can see in his perception area /////////////
         agentState.memorizeAllPerceivableRepresentations();
 

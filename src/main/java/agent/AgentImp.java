@@ -727,6 +727,31 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         return neighbouringCellsWithPacket;
     }
 
+    /**
+     * Find cells in the agent's perception area that contain a packet
+     *
+     * @return          A set of cells that contain a packet,
+     *                  An empty set if no percievable cell contains a neighbour
+     */
+    @Override
+    public Set<CellPerception> getPerceivableCellsWithAgents(){
+        var perception = this.getPerception();
+        int vw = perception.getWidth();
+        int vh = perception.getHeight();
+        Set<CellPerception> neighbouringCellsWithAgents = new HashSet<>();
+
+        for (int i = 0; i < vw; i++) {
+            for (int j = 0; j < vh; j++) {
+                // Look at each cell in the perception area
+                var cell = perception.getCellAt(i, j);
+                if (cell != null && cell.containsAgent()) {
+                    neighbouringCellsWithAgents.add(cell);
+                }
+            }
+        }
+        return neighbouringCellsWithAgents;
+    }
+
 
 
     /**

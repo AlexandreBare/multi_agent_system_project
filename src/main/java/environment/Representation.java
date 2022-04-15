@@ -41,6 +41,12 @@ abstract public class Representation {
     }
 
     /**
+     * Gets the x and y coordinate of the item this representation represents
+     * @return the x and y value in one Coordinate
+     */
+    public Coordinate getCoordinates() {return new Coordinate(getX(),getY());}
+
+    /**
      * Sets the x attribute of the Representation
      * @param x  The new x value
      */

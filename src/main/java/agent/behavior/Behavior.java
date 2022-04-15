@@ -4,6 +4,13 @@ import agent.AgentAction;
 import agent.AgentCommunication;
 import agent.AgentImp;
 import agent.AgentState;
+import environment.CellPerception;
+import environment.Coordinate;
+import environment.Perception;
+import environment.world.agent.AgentRep;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents a role for an agent. It contains the actions the agent
@@ -14,6 +21,7 @@ abstract public class Behavior {
     protected boolean hasHandled;
     private String description;
     private boolean closing = false;
+    public String requiredMoveKey = "recMove";
 
     
 
@@ -120,4 +128,80 @@ abstract public class Behavior {
         closing = true;
         description = null;
     }
+
+    /**
+     * a function that looks if the given agent is blocked by another agent
+     * @return true if the only walkable cell is the previous cell this agent was on and if
+     * the agent
+     */
+    public boolean stuckBecauseOfAgent(AgentState agentState, List<Coordinate> blackList){
+        Perception agentPerception  = agentState.getPerception();
+        CellPerception[] neighbours = agentPerception.getNeighbours();
+
+        CellPerception preciousCell = agentState.getPerceptionLastCell();
+        int agentsAround = 0;
+        for(CellPerception neighbour: neighbours){
+            if (neighbour == null)
+                continue;
+
+            if (neighbour.isWalkable() && !neighbour.equals(preciousCell))
+                return false;
+
+            if (neighbour.containsAgent() && !blackList.contains(neighbour.getCoordinates()))
+                agentsAround++;
+        }
+
+        return agentsAround > 0;
+    }
+
+    public void sendMessageToMakePlace(AgentState agentState, AgentCommunication agentCommunication, List<Coordinate> blackList) {
+        CellPerception[] neighbours = agentState.getPerception().getNeighbours();
+
+        for (CellPerception neighbour: neighbours){
+            if (neighbour == null || !neighbour.containsAgent() || blackList.contains(neighbour.getCoordinates()))
+                continue;
+            AgentRep blockingAgent = neighbour.getAgentRepresentation().get();
+
+            // compose messages
+            Coordinate agentPos = agentState.getCoordinates();
+            Coordinate blockedCoordinate = blockingAgent.getCoordinates();
+            List<Coordinate> coordinates1  = new ArrayList<Coordinate>();
+            List<Coordinate> coordinates2  = new ArrayList<Coordinate>();
+            coordinates1.add(agentPos);
+            coordinates2.add(blockedCoordinate);
+            String message1 = Coordinate.coordinates2String(coordinates1);
+            String message2 = Coordinate.coordinates2String(coordinates2);
+
+            // send message
+            agentCommunication.sendMessage(blockingAgent,message1);
+            agentState.addMemoryFragment(requiredMoveKey,message2);
+        }
+    }
+
+
+    public void dealWithBeingMaybeStuck(AgentState agentState, AgentCommunication agentCommunication){
+        dealWithBeingMaybeStuck(agentState,agentCommunication,new ArrayList<Coordinate>());
+    }
+
+    public void dealWithBeingMaybeStuck(AgentState agentState, AgentCommunication agentCommunication, List<Coordinate> blackList){
+        if(stuckBecauseOfAgent(agentState, blackList))
+            sendMessageToMakePlace(agentState,agentCommunication, blackList);
+    }
+
+    public void tryForceMove(AgentState agentState, AgentAction agentAction) {
+        Coordinate possibleNextPosition =
+                Coordinate.string2Coordinates(agentState.getMemoryFragment(requiredMoveKey)).get(0);
+
+        CellPerception possibleNextCell = agentState.getPerception().getCellPerceptionOnAbsPos(
+                                                                        possibleNextPosition.getX(),
+                                                                        possibleNextPosition.getY());
+        System.out.println(possibleNextCell.getCoordinates().toString() + ": " + possibleNextCell.isWalkable());
+        if (possibleNextCell.isWalkable()){
+            agentAction.step(possibleNextPosition.getX(), possibleNextPosition.getY());
+            agentState.removeMemoryFragment(requiredMoveKey);
+        }
+        else
+            agentAction.skip();
+    }
+
 }

@@ -94,6 +94,15 @@ public interface AgentState {
     Set<CellPerception> getPerceivableCellsWithPacket();
 
     /**
+     * Find cells in the agent's perception area that contain a packet
+     *
+     * @return          A set of cells that contain a packet,
+     *                  An empty set if no percievable cell contains a neighbour
+     */
+    Set<CellPerception> getPerceivableCellsWithAgents();
+
+
+    /**
      * Check if the agent can walk at some specific coordinates
      *
      * @param x     x-coordinate
