@@ -40,7 +40,6 @@ public class Pickup extends Behavior {
     public void act(AgentState agentState, AgentAction agentAction) {
         String data = agentState.getMemoryFragment(requiredMoveKey);
         if (data != null && containsNeighbour(agentState,Coordinate.string2Coordinates(data))){
-            System.out.println(agentState.getName() + "tried to move");
             tryForceMove(agentState,agentAction);
             return;
         }

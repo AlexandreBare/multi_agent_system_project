@@ -10,6 +10,7 @@ import agent.utils.VirtualEnvironment;
 import com.google.common.collect.Table;
 import environment.CellPerception;
 import environment.Coordinate;
+import environment.Mail;
 import environment.world.agent.AgentRep;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.Packet;
@@ -53,9 +54,24 @@ public class FindCharger extends Behavior {
             System.out.println("---------- incomming messages for: " + agentState.getName()+ " ----------");
         for (int i = 0; i <  agentCommunication.getNbMessages(); i++) {
             // pop the first message
-            String message = agentCommunication.getMessage(0).getMessage();
-            System.out.println(agentState.getName() + ", " + i + ": " + message);
+            Mail mail = agentCommunication.getMessage(0);
+            System.out.println(agentState.getName() + ", " + i + ": " + mail);
             agentCommunication.removeMessage(0);
+
+            String message = mail.getMessage();
+
+            // if it was a self message
+            if (mail.getFrom() == mail.getTo()){
+                int countdown = Integer.parseInt(message);
+                if (countdown != 0){
+                    countdown--;
+                    sendSelfMessage(agentState,agentCommunication,Integer.toString(countdown));
+                }
+                else{
+                    agentState.removeMemoryFragment(blacklistKey);
+                }
+                continue;
+            }
 
             // get the coordinate from the message
             Coordinate stuckAgent = Coordinate.string2Coordinates(message).get(0);
@@ -66,6 +82,7 @@ public class FindCharger extends Behavior {
 
             } else if (message.contains(blacklistPosMessage)) {
                 agentState.append2Memory(blacklistKey,stuckAgent.toString());
+                sendSelfMessage(agentState,agentCommunication,"2");
             }
 
             String blacklist = agentState.getMemoryFragment(blacklistKey);
@@ -77,6 +94,15 @@ public class FindCharger extends Behavior {
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
+        if (agentState.hasCarry()){
+            for(CellPerception neighbour: agentState.getPerception().getNeighbours()){
+                if (neighbour != null && neighbour.isFree()){
+                    agentAction.putPacket(neighbour.getX(), neighbour.getY());
+                    return;
+                }
+            }
+        }
+
         String data = agentState.getMemoryFragment(requiredMoveKey);
         if (data != null && containsNeighbour(agentState,Coordinate.string2Coordinates(data))){
             tryForceMove(agentState,agentAction);
@@ -103,7 +129,7 @@ public class FindCharger extends Behavior {
 
         ///////////// Criterion 2 : The agent can only move where on walkable cells /////////////
         // get the lowest neighbouring gradient
-        int lowestGradient = agentState.getPerceptionLastCell().getGradientRepresentation().get().getValue();
+        int lowestGradient = agentState.getPerception().getCellPerceptionOnRelPos(0,0).getGradientRepresentation().get().getValue();
         for (CellPerception neighbour: agentState.getPerception().getNeighbours()){
             if (neighbour == null || !neighbour.getGradientRepresentation().isPresent())
                 continue;
@@ -112,8 +138,8 @@ public class FindCharger extends Behavior {
                 lowestGradient = gradient;
         }
         // set the flag
-        boolean lowestGradientNeighboursBlocked = true;
-
+        boolean lowestGradientNeighboursBlockedByAgents = true;
+        boolean a = true;
         // Check for walkable moves
         for (var move : moves) {
             int x = move.getX() + agentState.getX();
@@ -121,9 +147,12 @@ public class FindCharger extends Behavior {
 
             // If the agent can not walk at these coordinates
             if (!agentState.canWalk(x, y)) {
+                if(agentState.getPerception().getCellPerceptionOnAbsPos(x,y).getGradientRepresentation().get().getValue() == lowestGradient &&
+                    !agentState.getPerception().getCellPerceptionOnAbsPos(x,y).getAgentRepresentation().isPresent())
+                    lowestGradientNeighboursBlockedByAgents = false;
                 movementManager.remove(move);
             } else if (agentState.getPerception().getCellPerceptionOnAbsPos(x,y).getGradientRepresentation().get().getValue() == lowestGradient) {
-                lowestGradientNeighboursBlocked = false;
+                lowestGradientNeighboursBlockedByAgents = false;
             }
 
         }
@@ -156,11 +185,10 @@ public class FindCharger extends Behavior {
             int y = move.getY() + agentState.getY();
 
             // Move the agent
-            if(!lowestGradientNeighboursBlocked)
+            if(!lowestGradientNeighboursBlockedByAgents)
                 agentAction.step(x, y);
             else
                 agentAction.skip();
-            System.out.println(agentState.getName() + " moved to: " + x +" " + y + " new position " + agentState.getCoordinates());
             return;
         }
 
@@ -173,7 +201,7 @@ public class FindCharger extends Behavior {
 
     private void moveOutOfTheWay(AgentState agentState, AgentAction agentAction, List<Coordinate> blackList) {
         CellPerception[] neighbours = agentState.getPerception().getNeighbours();
-
+        int minGradiant = agentState.getPerception().getCellPerceptionOnRelPos(0,0).getGradientRepresentation().get().getValue();
         for( CellPerception neighbour: neighbours){
             if (neighbour == null || !neighbour.isWalkable() || blackList.contains(neighbour.getCoordinates()))
                 continue;

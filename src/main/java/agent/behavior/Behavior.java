@@ -170,16 +170,10 @@ abstract public class Behavior {
             // compose messages
             Coordinate agentPos = agentState.getCoordinates();
             Coordinate blockedCoordinate = blockingAgent.getCoordinates();
-            List<Coordinate> coordinates1  = new ArrayList<Coordinate>();
-            List<Coordinate> coordinates2  = new ArrayList<Coordinate>();
-            coordinates1.add(agentPos);
-            coordinates2.add(blockedCoordinate);
-            String message1 = Coordinate.coordinates2String(coordinates1);
-            String message2 = Coordinate.coordinates2String(coordinates2);
 
             // send message
-            agentCommunication.sendMessage(blockingAgent,blacklistPosMessage+message1);
-            agentState.addMemoryFragment(requiredMoveKey,message2);
+            agentCommunication.sendMessage(blockingAgent,blacklistPosMessage + agentPos);
+            agentState.addMemoryFragment(requiredMoveKey,blockedCoordinate.toString());
         }
     }
 
@@ -197,22 +191,16 @@ abstract public class Behavior {
         Coordinate possibleNextPosition =
                 Coordinate.string2Coordinates(agentState.getMemoryFragment(requiredMoveKey)).get(0);
 
-        CellPerception possibleNextCell = agentState.getPerception().getCellPerceptionOnAbsPos(
-                                                                        possibleNextPosition.getX(),
-                                                                        possibleNextPosition.getY());
-        System.out.println(possibleNextCell.getCoordinates().toString() + ": " + possibleNextCell.isWalkable());
-        if (possibleNextCell.isWalkable()){
-            agentAction.step(possibleNextPosition.getX(), possibleNextPosition.getY());
-        }
-        else
-            agentAction.skip();
+        // this will result in a skip if it can't move there
+        agentAction.step(possibleNextPosition.getX(), possibleNextPosition.getY());
+
     }
 
     public boolean containsNeighbour(AgentState agentState, List<Coordinate> coordinates){
         CellPerception[] neighbours = agentState.getPerception().getNeighbours();
 
         for(CellPerception neighbour: neighbours){
-            if (coordinates.contains(neighbour.getCoordinates()))
+            if (neighbour != null && coordinates.contains(neighbour.getCoordinates()))
                 return true;
         }
 
@@ -234,9 +222,12 @@ abstract public class Behavior {
     public void dealWithWhitelist (AgentState agentState, AgentCommunication agentCommunication){
         String whitelist = agentState.getMemoryFragment(requiredMoveKey);
         if (whitelist != null){
+            System.out.println(agentState.getName() + "'s required move: " + whitelist);
+
+            System.out.println(agentState.getName() + "'s position: " + agentState.getCoordinates());
             for(Coordinate coordinate: Coordinate.string2Coordinates(whitelist)){
                 if (coordinate.equals(agentState.getCoordinates())){
-                    System.out.println("whitelist: " + coordinate.toString());
+                    System.out.println(agentState.getName() + " is whitelisting: " + coordinate.toString());
                     broadcast(agentState,agentCommunication,whitelistPosMessage + agentState.getPerceptionLastCell().getCoordinates().toString());
                     agentState.removeFromMemory(coordinate,requiredMoveKey);
                 }
@@ -273,7 +264,6 @@ abstract public class Behavior {
             agentAction.step(previousPos.getX(),previousPos.getY());
         else{
             agentAction.skip();
-            System.out.println(agentState.getName());
         }
 
     }
