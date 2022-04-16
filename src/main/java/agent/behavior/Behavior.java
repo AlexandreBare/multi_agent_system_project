@@ -4,6 +4,7 @@ import agent.AgentAction;
 import agent.AgentCommunication;
 import agent.AgentImp;
 import agent.AgentState;
+import com.google.common.collect.Table;
 import environment.CellPerception;
 import environment.Coordinate;
 import environment.Perception;
@@ -22,6 +23,9 @@ abstract public class Behavior {
     private String description;
     private boolean closing = false;
     public String requiredMoveKey = "recMove";
+    public String blacklistPosMessage = "blacklist";
+    public String whitelistPosMessage = "whitelist";
+    public String blacklistKey = "blacklist";
 
     
 
@@ -83,6 +87,7 @@ abstract public class Behavior {
     public boolean postCondition() {
         return true;
     }
+
 
 
 
@@ -173,7 +178,7 @@ abstract public class Behavior {
             String message2 = Coordinate.coordinates2String(coordinates2);
 
             // send message
-            agentCommunication.sendMessage(blockingAgent,message1);
+            agentCommunication.sendMessage(blockingAgent,blacklistPosMessage+message1);
             agentState.addMemoryFragment(requiredMoveKey,message2);
         }
     }
@@ -198,10 +203,79 @@ abstract public class Behavior {
         System.out.println(possibleNextCell.getCoordinates().toString() + ": " + possibleNextCell.isWalkable());
         if (possibleNextCell.isWalkable()){
             agentAction.step(possibleNextPosition.getX(), possibleNextPosition.getY());
-            agentState.removeMemoryFragment(requiredMoveKey);
         }
         else
             agentAction.skip();
+    }
+
+    public boolean containsNeighbour(AgentState agentState, List<Coordinate> coordinates){
+        CellPerception[] neighbours = agentState.getPerception().getNeighbours();
+
+        for(CellPerception neighbour: neighbours){
+            if (coordinates.contains(neighbour.getCoordinates()))
+                return true;
+        }
+
+        return false;
+    }
+
+    public void sendSelfMessage(AgentState agentState,AgentCommunication agentCommunication, String message){
+        // find own location
+        int x = agentState.getX();
+        int y = agentState.getY();
+
+        //get agentRep from location
+        AgentRep selfRep = agentState.getPerception().getCellPerceptionOnAbsPos(x,y).getAgentRepresentation().get();
+
+        //send message to self
+        agentCommunication.sendMessage(selfRep,message);
+    }
+
+    public void dealWithWhitelist (AgentState agentState, AgentCommunication agentCommunication){
+        String whitelist = agentState.getMemoryFragment(requiredMoveKey);
+        if (whitelist != null){
+            for(Coordinate coordinate: Coordinate.string2Coordinates(whitelist)){
+                if (coordinate.equals(agentState.getCoordinates())){
+                    System.out.println("whitelist: " + coordinate.toString());
+                    broadcast(agentState,agentCommunication,whitelistPosMessage + agentState.getPerceptionLastCell().getCoordinates().toString());
+                    agentState.removeFromMemory(coordinate,requiredMoveKey);
+                }
+            }
+        }
+    }
+
+    public void broadcast(AgentState agentState, AgentCommunication agentCommunication, String message) {
+        for (CellPerception agentCell: agentState.getPerceivableCellsWithAgents()){
+            if (agentCell.getCoordinates().equals(agentState.getCoordinates()))
+                continue;
+
+            AgentRep agent = agentCell.getAgentRepresentation().get();
+            agentCommunication.sendMessage(agent,message);
+        }
+    }
+
+    public void tryToMoveRandomly(AgentState agentState, AgentAction agentAction){
+        CellPerception previousPos = agentState.getPerceptionLastCell();
+        boolean previousPosEmpty = false;
+        for (CellPerception neighbour: agentState.getPerception().getNeighbours()){
+            if (neighbour == null)
+                continue;
+            if (!neighbour.isWalkable())
+                continue;
+            if (neighbour.getCoordinates().equals(previousPos.getCoordinates())){
+                previousPosEmpty = true;
+                continue;
+            }
+            agentAction.step(neighbour.getX(),neighbour.getY());
+            return;
+        }
+        if (previousPosEmpty)
+            agentAction.step(previousPos.getX(),previousPos.getY());
+        else{
+            agentAction.skip();
+            System.out.println(agentState.getName());
+        }
+
     }
 
 }

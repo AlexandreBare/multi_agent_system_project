@@ -35,6 +35,7 @@ public class Charge extends Behavior {
 
         }
 */
+        dealWithWhitelist(agentState,agentCommunication);
         // recieve incomming messages
         if(agentCommunication.getNbMessages() != 0)
             System.out.println("---------- incomming messages for: " + agentState.getName()+ " while charging ----------");
@@ -42,6 +43,7 @@ public class Charge extends Behavior {
             // pop the first message
             System.out.println(agentState.getName() + ", " + i + ": " + agentCommunication.getMessage(0));
             agentCommunication.removeMessage(0);
+
         }
     }
 

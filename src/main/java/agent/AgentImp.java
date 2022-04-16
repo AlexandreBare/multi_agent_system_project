@@ -908,7 +908,6 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         if (data == null || data.equals("")){
             return;
         }
-
         String oldData = this.getMemoryFragment(key);
         if (oldData != null){
             this.removeMemoryFragment(key);
@@ -961,6 +960,8 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
             return;
 
         Coordinate cellCoordinates = new Coordinate(cell.getX(), cell.getY());
+        // remove the coordinates from any rep memory list to make sure it isn't in two lists at once
+        removeFromMemory(cellCoordinates,"Rep");
         String data;
         // If a representation with the same key has already been saved in memory
         if (this.getMemoryFragmentKeys().contains(key)) {
@@ -1181,6 +1182,14 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         return cells;
     }
 
+    @Override
+    public boolean memoryKeyContains(String key, Coordinate coordinate) {
+        String memory = getMemoryFragment(key);
+        if (memory == null)
+            return false;
+        List<Coordinate> coordinates = Coordinate.string2Coordinates(getMemoryFragment(key));
+        return coordinates.contains(coordinate);
+    }
 
     /**
      * Get the current number of memory fragments in memory of this agent.
@@ -1197,9 +1206,6 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     public int getMaxNbMemoryFragments() {
         return AgentImp.MAX_MEMORY_FRAGMENTS;
     }
-
-
-
 
     /**
      * Assigns a new BehaviorState to this Agent implementation

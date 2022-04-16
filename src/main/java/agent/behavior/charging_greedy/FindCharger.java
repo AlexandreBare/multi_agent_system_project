@@ -40,38 +40,51 @@ public class FindCharger extends Behavior {
 
             }
 */
-        // set move out of the way
-        moveOutOfTheWay = false;
-
-        // receive incoming messages
+        dealWithWhitelist(agentState,agentCommunication);
+        // receive incoming messagesSystem.out.println("someThing");
+        //                String key =blacklistKey;
+        //                String data = stuckAgent.toString();
+        //
+        //                System.out.println(key != null && !key.equals("") && data != null
+        //                        && !data.equals("") && agentState.getNbMemoryFragments() < agentState.getMaxNbMemoryFragments());
+        //
         if(agentCommunication.getNbMessages() != 0)
             System.out.println("---------- incomming messages for: " + agentState.getName()+ " ----------");
-        for (int i = 0; i <  agentCommunication.getNbMessages(); i++){
+        for (int i = 0; i <  agentCommunication.getNbMessages(); i++) {
             // pop the first message
-            String message =agentCommunication.getMessage(0).getMessage();
+            String message = agentCommunication.getMessage(0).getMessage();
             System.out.println(agentState.getName() + ", " + i + ": " + message);
             agentCommunication.removeMessage(0);
 
-            // get the coordinate at which the calling agent is stuck
+            // get the coordinate from the message
             Coordinate stuckAgent = Coordinate.string2Coordinates(message).get(0);
-            blockedCoordinates.add(stuckAgent);
-            moveOutOfTheWay = true;
-        }
+            if (message.contains(whitelistPosMessage)) {
+                while(agentState.memoryKeyContains(blacklistKey,stuckAgent)){
+                    agentState.removeFromMemory(stuckAgent,blacklistKey);
+                }
 
-        if (!blockedCoordinates.isEmpty())
-            dealWithBeingMaybeStuck(agentState, agentCommunication, blockedCoordinates);
+            } else if (message.contains(blacklistPosMessage)) {
+                agentState.append2Memory(blacklistKey,stuckAgent.toString());
+            }
+
+            String blacklist = agentState.getMemoryFragment(blacklistKey);
+            if (blacklist != null)
+                dealWithBeingMaybeStuck(agentState, agentCommunication, Coordinate.string2Coordinates(blacklist));
+        }
     }
 
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
-        if (agentState.getMemoryFragment(requiredMoveKey) != null){
+        String data = agentState.getMemoryFragment(requiredMoveKey);
+        if (data != null && containsNeighbour(agentState,Coordinate.string2Coordinates(data))){
             tryForceMove(agentState,agentAction);
             return;
         }
 
-        if (moveOutOfTheWay) {
-            moveOutOfTheWay(agentState,agentAction,blockedCoordinates);
+        String blacklist = agentState.getMemoryFragment(blacklistKey);
+        if (blacklist != null) {
+            moveOutOfTheWay(agentState,agentAction,Coordinate.string2Coordinates(blacklist));
             return;
         }
 

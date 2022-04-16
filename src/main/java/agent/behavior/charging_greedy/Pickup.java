@@ -23,6 +23,8 @@ public class Pickup extends Behavior {
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
         dealWithBeingMaybeStuck(agentState,agentCommunication);
 
+        dealWithWhitelist(agentState,agentCommunication);
+
         // recieve incomming messages
         if(agentCommunication.getNbMessages() != 0)
             System.out.println("---------- incomming messages for: " + agentState.getName()+ " while picking up ----------");
@@ -36,7 +38,8 @@ public class Pickup extends Behavior {
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
-        if (agentState.getMemoryFragment(requiredMoveKey) != null){
+        String data = agentState.getMemoryFragment(requiredMoveKey);
+        if (data != null && containsNeighbour(agentState,Coordinate.string2Coordinates(data))){
             System.out.println(agentState.getName() + "tried to move");
             tryForceMove(agentState,agentAction);
             return;
@@ -207,8 +210,9 @@ public class Pickup extends Behavior {
 
         ///////////// No viable or available moves, let's skip this agent's turn /////////////
 
-        // Skip turn
-        agentAction.skip();
+        // try and move randomly
+        tryToMoveRandomly(agentState,agentAction);
+
     }
 }
 

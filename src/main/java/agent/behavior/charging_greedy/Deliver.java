@@ -10,6 +10,7 @@ import agent.utils.VirtualEnvironment;
 import environment.CellPerception;
 import environment.Coordinate;
 import environment.Mail;
+import environment.world.agent.AgentRep;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.Packet;
 import util.MyColor;
@@ -28,6 +29,8 @@ public class Deliver extends Behavior {
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
         dealWithBeingMaybeStuck(agentState,agentCommunication);
 
+        dealWithWhitelist(agentState,agentCommunication);
+
         // recieve incomming messages
         if(agentCommunication.getNbMessages() != 0)
             System.out.println("---------- incomming messages for: " + agentState.getName()+ " while delivering ----------");
@@ -41,10 +44,10 @@ public class Deliver extends Behavior {
 
 
 
-
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
-        if (agentState.getMemoryFragment(requiredMoveKey) != null){
+        String data = agentState.getMemoryFragment(requiredMoveKey);
+        if (data != null && containsNeighbour(agentState,Coordinate.string2Coordinates(data))){
             tryForceMove(agentState,agentAction);
             return;
         }
@@ -175,8 +178,28 @@ public class Deliver extends Behavior {
 
         ///////////// No viable or available moves, let's skip this agent's turn /////////////
 
-        // Skip turn
-        agentAction.skip();
+        // try and move randomly
+        tryToMoveRandomly(agentState,agentAction);
+
+//        Set<String> keys = agentState.getMemoryFragmentKeysContaining("Rep");
+//        System.out.println("----------------------- " + agentState.getName() + "s perception -----------------------");
+//        for (CellPerception neighbour: agentState.getPerception().getNeighboursInOrder()){
+//            if (neighbour == null) {
+//                System.out.println("null");
+//            }
+//            Coordinate coordinate = neighbour.getCoordinates();
+//            System.out.print(coordinate + ": ");
+//            for(String key: keys){
+//                if (agentState.memoryKeyContains(key,coordinate))
+//                    System.out.print(key + ", ");
+//            }
+//            System.out.println("");
+//        }
+//        System.out.println("---------------------------------------------------------------------");
+//        for(String key : keys){
+//            System.out.println(key+ ": "+ agentState.getMemoryFragment(key));
+//
+//        }
     }
 
 
