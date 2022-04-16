@@ -171,6 +171,7 @@ public class Deliver extends Behavior {
             if (agentState.canWalk(x, y)) {
                 // Move the agent
                 agentAction.step(x, y);
+                System.out.println(agentState.getName() + " moved to: " + x +" " + y + " new position " + agentState.getCoordinates());
                 return;
             }
         }

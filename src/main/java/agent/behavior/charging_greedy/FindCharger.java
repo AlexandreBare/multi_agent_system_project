@@ -7,6 +7,7 @@ import agent.behavior.Behavior;
 import agent.utils.MovementManager;
 import agent.utils.PathFinder;
 import agent.utils.VirtualEnvironment;
+import com.google.common.collect.Table;
 import environment.CellPerception;
 import environment.Coordinate;
 import environment.world.agent.AgentRep;
@@ -101,6 +102,17 @@ public class FindCharger extends Behavior {
 
 
         ///////////// Criterion 2 : The agent can only move where on walkable cells /////////////
+        // get the lowest neighbouring gradient
+        int lowestGradient = agentState.getPerceptionLastCell().getGradientRepresentation().get().getValue();
+        for (CellPerception neighbour: agentState.getPerception().getNeighbours()){
+            if (neighbour == null || !neighbour.getGradientRepresentation().isPresent())
+                continue;
+            int gradient = neighbour.getGradientRepresentation().get().getValue();
+            if (lowestGradient> gradient )
+                lowestGradient = gradient;
+        }
+        // set the flag
+        boolean lowestGradientNeighboursBlocked = true;
 
         // Check for walkable moves
         for (var move : moves) {
@@ -110,7 +122,10 @@ public class FindCharger extends Behavior {
             // If the agent can not walk at these coordinates
             if (!agentState.canWalk(x, y)) {
                 movementManager.remove(move);
+            } else if (agentState.getPerception().getCellPerceptionOnAbsPos(x,y).getGradientRepresentation().get().getValue() == lowestGradient) {
+                lowestGradientNeighboursBlocked = false;
             }
+
         }
 
 
@@ -141,7 +156,11 @@ public class FindCharger extends Behavior {
             int y = move.getY() + agentState.getY();
 
             // Move the agent
-            agentAction.step(x, y);
+            if(!lowestGradientNeighboursBlocked)
+                agentAction.step(x, y);
+            else
+                agentAction.skip();
+            System.out.println(agentState.getName() + " moved to: " + x +" " + y + " new position " + agentState.getCoordinates());
             return;
         }
 
