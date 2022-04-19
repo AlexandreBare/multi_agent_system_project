@@ -53,7 +53,7 @@ public class PathFinder {
             }
             distances.add(dist);
         }
-        return Collections.min(distances); // return the distance to the closest destination
+        return Collections.min(distances); // return the smallest cumulated distance to go through all destinations
     }
 
     /**
@@ -77,7 +77,7 @@ public class PathFinder {
      *
      * @return      the list of coordinates pairs composing the optimal path to the closest destination
      */
-    public List<Coordinate> astar(CellPerception startingCell, Set<CellPerception[]> destinationCells){
+    public List<List<Coordinate>> astar(CellPerception startingCell, Set<CellPerception[]> destinationCells){
         // Starting virtual state
         VirtualState state = new VirtualState(startingCell, destinationCells);
         // the set of already visited cells (avoid cycles when browsing the cells)
@@ -97,9 +97,9 @@ public class PathFinder {
                 return new ArrayList<>(); // no path was found
 
             state = nextStates.poll(); // Retrieve and remove the first state in the priority queue
-
+//            System.out.println(priorityFunction(state));
             if (state.isTerminal()) // If the agent is in a terminal state
-                return state.getPath(); // return the optimal path found
+                return state.getPaths(); // return the optimal path found
 
             closed.add(state.getCurrentCell()); // Add the current cell to the set of already visited cells
 
@@ -122,6 +122,7 @@ public class PathFinder {
                     // if the state is not already in the priority queue
                     // (This part of the implementation is not exact, we should implement the version in comments above)
                     if(!nextStates.contains(nextState))
+                        //System.out.println("Next State added to priority queue: " + nextState.getCurrentCell().getCoordinates());
                         nextStates.add(nextState); // we add it to the queue of next states to browse
                 }
             }

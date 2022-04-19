@@ -70,10 +70,10 @@ public class Pickup extends Behavior {
             // Compute the last move that the agent has done to go from agentLastCoordinates to agentCurrentCoordinates
             Coordinate lastMove = agentCurrentCoordinates.diff(agentLastCoordinates);
             // Compute the opposite move to this last move
-            Coordinate backwardMove = new Coordinate(0, 0).diff(lastMove);
+            //Coordinate backwardMove = new Coordinate(0, 0).diff(lastMove);
             // Remove the opposite move so that the agent can not go backwards.
             // It forces the agent not to stick to the same region and instead "explore" the environment
-            movementManager.remove(backwardMove);
+            //movementManager.remove(backwardMove);
             // Pre-sort the remaining available moves by their manhattan distance to the last move.
             // It pushes the agent to continue moving in a direction as close as possible to the last one
             // but does not strictly force him to do so if it happens not to be possible to go this way.
@@ -82,7 +82,7 @@ public class Pickup extends Behavior {
 
         // Run A* to find one of the shortest paths to the closest packet of which a destination is known if no path has
         // been computed yet.
-        if (!agentState.getMemoryFragmentKeys().contains("ShortestPath")){
+        if (!agentState.getMemoryFragmentKeys().contains("ShortestPath2Packet")){
             Map<String, List<Coordinate>> coloredPacketCoordinatesMap = new HashMap<>();
             Map<String, List<Coordinate>> coloredDestinationCoordinatesMap = new HashMap<>();
 
@@ -159,13 +159,24 @@ public class Pickup extends Behavior {
                     }
                 }
             }
-
-            // Run A* to find the shortest path from the agent's current cell to one of the possible packet cells
-            // (of which we know the destination)
-            List<Coordinate> path2ClosestPacket = pathFinder.astar(agentCell, agentDestinationCells);
-
-            // Store to memory the shortest path to the closest packet
-            agentState.addMemoryFragment("ShortestPath", Coordinate.coordinates2String(path2ClosestPacket));
+            if (!agentDestinationCells.isEmpty()) {
+                // Run A* to find the shortest path from the agent's current cell to one of the possible packet cells
+                // (of which we know the destination)
+                List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
+//                System.out.println("Pickup - AgentDestinationCells: ");
+//                Iterator<CellPerception[]> iterator = agentDestinationCells.iterator();
+//                while(iterator.hasNext()) {
+//                    for (CellPerception destinationCell : iterator.next()) {
+//                        System.out.print(destinationCell.getCoordinates());
+//                    }
+//                    System.out.print("\n");
+//                }
+//                System.out.println("Pickup - Shortest path 2 packet: " + Coordinate.coordinates2String(shortestPaths.get(0)));
+//                System.out.println("Pickup - Shortest path 2 destination: " + Coordinate.coordinates2String(shortestPaths.get(1)));
+                // Store to memory the shortest path to the closest packet
+                agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPaths.get(0)));
+                agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(1)));
+            }
 
 //            // if we memorized at least a packet of which we know the destination
 //            if(!coordinatesList.isEmpty()) {
@@ -188,15 +199,15 @@ public class Pickup extends Behavior {
         }
 
         // If now a path to the closest packet exists in memory
-        if (agentState.getMemoryFragmentKeys().contains("ClosestPacketPath")){
+        if (agentState.getMemoryFragmentKeys().contains("ShortestPath2Packet")){
             ///////////// Sort the moves by following the closest packet path /////////////
 
             // Retrieve the current path the agent has to follow to get to the closest packet
-            String memoryFragment = agentState.getMemoryFragment("ClosestPacketPath");
-            List<Coordinate> path2ClosestPacket = Coordinate.string2Coordinates(memoryFragment);
+            String memoryFragment = agentState.getMemoryFragment("ShortestPath2Packet");
+            List<Coordinate> path2Packet = Coordinate.string2Coordinates(memoryFragment);
             // Retrieve and remove from memory the next cell we should go to in this path
-            Coordinate nextCoordinatesInPath = path2ClosestPacket.get(0);
-            agentState.removeFromMemory(nextCoordinatesInPath, "ClosestPacketPath");
+            Coordinate nextCoordinatesInPath = path2Packet.get(0);
+            agentState.removeFromMemory(nextCoordinatesInPath, "ShortestPath2Packet");
 
             // Sort the moves to best match the direction to the next cell in the path.
             // It allows the agent not to be forced to follow exactly the optimal path if for example another

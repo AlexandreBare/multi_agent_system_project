@@ -865,7 +865,7 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     @Override
     public void addMemoryFragment(String key, String data) {
         if (key != null && !key.equals("") && data != null
-                && !data.equals("") && getNbMemoryFragments() < getMaxNbMemoryFragments()) {
+                && !data.equals("")) { // && getNbMemoryFragments() < getMaxNbMemoryFragments()
             memory.put(key, data);
         }
     }
