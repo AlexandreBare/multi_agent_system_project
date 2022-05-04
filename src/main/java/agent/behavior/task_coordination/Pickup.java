@@ -13,7 +13,9 @@ import environment.world.destination.DestinationRep;
 import environment.world.packet.PacketRep;
 import util.MyColor;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 
 public class Pickup extends Behavior {
@@ -27,6 +29,7 @@ public class Pickup extends Behavior {
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
+        System.out.println("Hey");
         ///////////// Memorize all representations that the agent can see in his perception area /////////////
         agentState.memorizeAllPerceivableRepresentations();
 
@@ -40,15 +43,28 @@ public class Pickup extends Behavior {
         // Check for a neighbouring packet to pick up
         CellPerception packetCell = agentState.getNeighbouringCellWithPacket();
         if (packetCell != null){
-            // Build the key to find a destination in memory where the current packet could be later delivered
-            String packetColor = MyColor.getName(packetCell.getRepOfType(PacketRep.class).getColor());
-            String destinationKey = AgentState.rep2MemoryKey(DestinationRep.class.toString(), packetColor);
+            Color packetColor = packetCell.getRepOfType(PacketRep.class).getColor();
+            // If the agent's color match the packet color, he will be able to pick it up
+            if(agentState.getColor().orElse(null) == null || agentState.getColor().orElse(Color.BLACK).equals(packetColor)) {
+                System.out.println("Agent Color: "+ agentState.getColor().orElse(Color.BLACK).toString());
+                System.out.println("Packet Color: "+ packetColor.toString());
+                // Build the key to find a destination in memory where the current packet could be later delivered
+                String packetColorName = MyColor.getName(packetCell.getRepOfType(PacketRep.class).getColor());
+                String destinationKey = AgentState.rep2MemoryKey(DestinationRep.class.toString(), packetColorName);
 
-            // If the agent knows a destination that can accept the current packet (i.e. same color)
-            if (agentState.getMemoryFragmentKeys().contains(destinationKey)) {
-                agentState.removeFromMemory(packetCell); // Remove the packet from memory as we will pick it up
-                agentAction.pickPacket(packetCell.getX(), packetCell.getY()); // Pick the packet at hand
-                return;
+                // If the agent knows a destination that can accept the current packet (i.e. same color) and
+                // the agent was in the process of going to a packet
+                if (agentState.getMemoryFragmentKeys().contains(destinationKey)
+                        && (agentState.getMemoryFragmentKeys().contains("ShortestPath2Destination")
+                        || agentState.getMemoryFragmentKeys().contains("ShortestPath2Gather"))) {
+                    //                List<Coordinate> path2Packet = Coordinate.string2Coordinates(agentState.getMemoryFragment("ShortestPath2Packet"));
+                    //                Coordinate targetPacketCoordinates = path2Packet.get(path2Packet.size() - 1);
+                    //                if (targetPacketCoordinates.distanceFrom(packetCell.getCoordinates()) <= 2) { // if the agent has reached the packet that we aimed to go to
+                    agentState.removeFromMemory(packetCell); // Remove the packet from memory as we will pick it up
+                    agentAction.pickPacket(packetCell.getX(), packetCell.getY()); // Pick the packet at hand
+                    return;
+                    //                }
+                }
             }
         }
 
@@ -70,10 +86,10 @@ public class Pickup extends Behavior {
             // Compute the last move that the agent has done to go from agentLastCoordinates to agentCurrentCoordinates
             Coordinate lastMove = agentCurrentCoordinates.diff(agentLastCoordinates);
             // Compute the opposite move to this last move
-            //Coordinate backwardMove = new Coordinate(0, 0).diff(lastMove);
+            Coordinate backwardMove = new Coordinate(0, 0).diff(lastMove);
             // Remove the opposite move so that the agent can not go backwards.
             // It forces the agent not to stick to the same region and instead "explore" the environment
-            //movementManager.remove(backwardMove);
+            movementManager.remove(backwardMove);
             // Pre-sort the remaining available moves by their manhattan distance to the last move.
             // It pushes the agent to continue moving in a direction as close as possible to the last one
             // but does not strictly force him to do so if it happens not to be possible to go this way.
@@ -163,6 +179,8 @@ public class Pickup extends Behavior {
                 // Run A* to find the shortest path from the agent's current cell to one of the possible packet cells
                 // (of which we know the destination)
                 List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
+//                System.out.println(String.format("Shortest Paths: %s", shortestPaths));
+
 //                System.out.println("Pickup - AgentDestinationCells: ");
 //                Iterator<CellPerception[]> iterator = agentDestinationCells.iterator();
 //                while(iterator.hasNext()) {
@@ -173,29 +191,78 @@ public class Pickup extends Behavior {
 //                }
 //                System.out.println("Pickup - Shortest path 2 packet: " + Coordinate.coordinates2String(shortestPaths.get(0)));
 //                System.out.println("Pickup - Shortest path 2 destination: " + Coordinate.coordinates2String(shortestPaths.get(1)));
-                // Store to memory the shortest path to the closest packet
-                agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPaths.get(0)));
-                agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(1)));
+                if (!shortestPaths.isEmpty()){
+                    // Store to memory the shortest path to the closest packet
+                    List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
+                    List<Coordinate> shortestPath2Destination = shortestPaths.get(1);
+                    if(!shortestPath2Packet.isEmpty())
+                        agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPaths.get(0)));
+                    if(!shortestPath2Destination.isEmpty())
+                        agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(1)));
+                }
+            }
+        }
+
+        // if the agent still does not have a path to follow to a packet
+        if (!agentState.getMemoryFragmentKeys().contains("ShortestPath2Packet")){
+
+            ///////////// Criterion 2: Let's target the closest packet that the agent has memorized /////////////
+            ///////////// Find the shortest path at the same time to get to one of the known        /////////////
+            ///////////// packets and bring it to a "gathering" place. The gathering place is the   /////////////
+            ///////////// cell which is at the center of all known packets of the same color        /////////////
+
+            // Retrieve the memory key where packets of the same color as the agent are stored
+            String key = AgentState.rep2MemoryKey(PacketRep.class.toString(), agentState.getColor().toString());
+            String memoryFragment = agentState.getMemoryFragment(key);
+            List<Coordinate> packetCoordinatesList = Coordinate.string2Coordinates(memoryFragment);
+
+
+            // Run A* to find one of the shortest paths to the closest packet
+
+            // Convert all stored cell information to a list of cells
+            Set<CellPerception> cells = agentState.memory2Cells();
+            // Create a fictive environment with these cells and the object that manages moves
+            VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells, movementManager);
+            // Create a path finder object that can search the shortest paths linking specified ordered destinations
+            // in the fictive environment
+            PathFinder pathFinder = new PathFinder(virtualEnvironment);
+
+            // Current cell the agent stands on
+            CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0, 0);
+
+            Set<CellPerception[]> agentDestinationCells = new HashSet<>();
+
+            for (Coordinate packetCoordinates: packetCoordinatesList){
+                // Compute the gathering place as the average of all other packets coordinates
+                Coordinate gatheringCoordinates = new Coordinate(0, 0);
+                for(Coordinate otherPacketCoordinates: packetCoordinatesList) {
+                    if (packetCoordinates != otherPacketCoordinates) {
+                        gatheringCoordinates = gatheringCoordinates.add(otherPacketCoordinates);
+                    }
+                }
+                gatheringCoordinates.divideBy(packetCoordinatesList.size()-1);
+
+                // Get the fictive cells from the fictive environment of the packets we know
+                agentDestinationCells.add(new CellPerception[]{
+                        virtualEnvironment.getCell(packetCoordinates),
+                        virtualEnvironment.getCell(gatheringCoordinates)
+                });
             }
 
-//            // if we memorized at least a packet of which we know the destination
-//            if(!coordinatesList.isEmpty()) {
-//                // Get the fictive cells from the fictive environment of the packets we know
-//                Set<CellPerception[]> packetCells = new HashSet<>();
-//                for (Coordinate packetCoordinates : coordinatesList) {
-//                    packetCells.add(new CellPerception[]{virtualEnvironment.getCell(packetCoordinates)});
-//                }
-//                // Run A* to find the shortest path from the agent's current cell to one of the possible packet cells
-//                // (of which we know the destination)
-//                List<Coordinate> path2ClosestPacket = pathFinder.astar(agentCell, packetCells);
-//
-//                // We can remove the path to the closest destination, we are anyway not following it anymore.
-//                // It helps to save a spot in memory.
-//                agentState.removeMemoryFragment("ShortestPath");
-//
-//                // Store to memory the shortest path to the closest packet
-//                agentState.addMemoryFragment("ShortestPath", Coordinate.coordinates2String(path2ClosestPacket));
-//            }
+            if (!agentDestinationCells.isEmpty()) {
+                // Run A* to find the shortest path from the agent's current cell to one of the possible packet cells
+                // (of which we know the destination)
+                List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
+                if (!shortestPaths.isEmpty()){
+                    List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
+                    List<Coordinate> shortestPath2Gather = shortestPaths.get(1);
+                    // Store to memory the shortest path to the closest packet
+                    if(!shortestPath2Packet.isEmpty())
+                        agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPaths.get(0)));
+                    if(!shortestPath2Gather.isEmpty())
+                        agentState.addMemoryFragment("ShortestPath2Gather", Coordinate.coordinates2String(shortestPaths.get(1)));
+                }
+            }
         }
 
         // If now a path to the closest packet exists in memory
@@ -244,4 +311,3 @@ public class Pickup extends Behavior {
         agentAction.skip();
     }
 }
-

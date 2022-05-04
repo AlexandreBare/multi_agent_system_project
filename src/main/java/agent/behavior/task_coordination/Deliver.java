@@ -1,4 +1,4 @@
-package agent.behavior.planned_charging;
+package agent.behavior.task_coordination;
 
 import agent.AgentAction;
 import agent.AgentCommunication;
@@ -84,7 +84,6 @@ public class Deliver extends Behavior {
 
         // Run A* to find an optimal path to the closest destination of the right color if no path has been computed yet
         if (!agentState.getMemoryFragmentKeys().contains("ShortestPath2Destination")){
-            System.out.println("!! A* Deliver !!");
             // Convert all stored cell information to a list of cells
             Set<CellPerception> cells = agentState.memory2Cells();
             // Create a fictive environment with these cells and the object that manages moves

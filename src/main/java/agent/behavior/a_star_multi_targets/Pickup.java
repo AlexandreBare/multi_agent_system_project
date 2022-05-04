@@ -45,7 +45,8 @@ public class Pickup extends Behavior {
             String destinationKey = AgentState.rep2MemoryKey(DestinationRep.class.toString(), packetColor);
 
             // If the agent knows a destination that can accept the current packet (i.e. same color)
-            if (agentState.getMemoryFragmentKeys().contains(destinationKey)) {
+            if (agentState.getMemoryFragmentKeys().contains(destinationKey) &&
+                    agentState.getMemoryFragmentKeys().contains("ClosestPacketPath")) {
                 agentState.removeFromMemory(packetCell); // Remove the packet from memory as we will pick it up
                 agentAction.pickPacket(packetCell.getX(), packetCell.getY()); // Pick the packet at hand
                 return;
@@ -140,6 +141,7 @@ public class Pickup extends Behavior {
                 // Run A* to find the shortest path from the agent's current cell to one of the possible packet cells
                 // (of which we know the destination)
                 List<Coordinate> path2ClosestPacket = pathFinder.astar(agentCell, packetCells);
+                System.out.println(String.format("New path to closest packet: %s", path2ClosestPacket));
 
                 // We can remove the path to the closest destination, we are anyway not following it anymore.
                 // It helps to save a spot in memory.
@@ -157,6 +159,7 @@ public class Pickup extends Behavior {
             // Retrieve the current path the agent has to follow to get to the closest packet
             String memoryFragment = agentState.getMemoryFragment("ClosestPacketPath");
             List<Coordinate> path2ClosestPacket = Coordinate.string2Coordinates(memoryFragment);
+            System.out.println(String.format("Path to closest packet: %s", path2ClosestPacket));
             // Retrieve and remove from memory the next cell we should go to in this path
             Coordinate nextCoordinatesInPath = path2ClosestPacket.get(0);
             agentState.removeFromMemory(nextCoordinatesInPath, "ClosestPacketPath");

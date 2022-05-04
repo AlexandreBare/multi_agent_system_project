@@ -1,4 +1,4 @@
-package agent.behavior.planned_charging.change;
+package agent.behavior.task_coordination.change;
 
 import agent.behavior.BehaviorChange;
 
