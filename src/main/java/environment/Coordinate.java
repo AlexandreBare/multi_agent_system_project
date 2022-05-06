@@ -86,7 +86,7 @@ public class Coordinate extends Pair<Integer, Integer> {
     }
 
     public Coordinate divideBy(int divider) {
-        return new Coordinate((int) first/divider, (int) second/divider);
+        return new Coordinate((int) (first/divider), (int) (second/divider));
     }
 
     /**

@@ -51,6 +51,7 @@ public class Deliver extends Behavior {
         // Check for a neighbouring destination of the right color to deliver the packet
         CellPerception destinationCell = agentState.getNeighbouringCellWithDestination(packetColor);
         if (destinationCell != null) { // If a matching destination is found
+            agentState.removeMemoryFragment("ShortestPath2Destination"); // Remove path to destination from memory
             agentAction.putPacket(destinationCell.getX(), destinationCell.getY()); // Deliver the packet
             return;
         }
@@ -80,7 +81,7 @@ public class Deliver extends Behavior {
 
 
         ///////////// Criterion 2: Let's follow the closest path to a destination that matches /////////////
-        ///////////// the packet color. This path was found by A* at FindPath behavior         /////////////
+        ///////////// the packet color.                                                        /////////////
 
         // Run A* to find an optimal path to the closest destination of the right color if no path has been computed yet
         if (!agentState.getMemoryFragmentKeys().contains("ShortestPath2Destination")){
@@ -88,7 +89,7 @@ public class Deliver extends Behavior {
             Set<CellPerception> cells = agentState.memory2Cells();
             // Create a fictive environment with these cells and the object that manages moves
             VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells, movementManager);
-            // Create a path finder object that can search the shortest paths to specific destinations in the fictive
+            // Create a PathFinder object that can search the shortest paths to specific destinations in the fictive
             // environment
             PathFinder pathFinder = new PathFinder(virtualEnvironment);
 
@@ -108,15 +109,8 @@ public class Deliver extends Behavior {
 
             // Run A* to find the shortest path from the agent's current cell to one of the possible terminal cells
             List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, destinationCells);
-            if (!shortestPaths.isEmpty()) {
+            if (!shortestPaths.isEmpty() && !shortestPaths.get(0).isEmpty()) {
 //                System.out.println("Deliver - Shortest path 2 destination: " + Coordinate.coordinates2String(shortestPaths.get(0)));
-                //            // We remove the last element of the list as it correspon
-                //            path2Destination = path2Destination.subList(0, path2Destination.size()-2);
-
-                //            // We can remove the path to the closest packet, we are anyway not following it anymore.
-                //            // It helps to save a spot in memory.
-                //            agentState.removeMemoryFragment("ClosestPacketPath");
-
                 // Store to memory the shortest path to the closest destination
                 agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(0)));
             }
@@ -129,7 +123,6 @@ public class Deliver extends Behavior {
 
             // Retrieve the current path the agent has to follow to get to his destination
             String memoryFragment = agentState.getMemoryFragment("ShortestPath2Destination");
-//            System.out.println("Deliver Memory Fragment: " + memoryFragment);
             List<Coordinate> path2Destination = Coordinate.string2Coordinates(memoryFragment);
 
             // Retrieve and remove from memory the next cell we should go to in this path

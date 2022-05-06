@@ -24,7 +24,7 @@ public class PathFinder {
     /**
      * The cost function of A*
      *
-     * @param state    the current fictive state
+     * @param state     the current fictive state
      *
      * @return  the current path length
      */
@@ -51,9 +51,11 @@ public class PathFinder {
                 dist += startingCell.getCoordinates().distanceFrom(destinationCell.getCoordinates());
                 startingCell = destinationCell;
             }
+//            dist -= destinationCellList.length - (destinationCellList.length - 1);
             distances.add(dist);
         }
-        return Collections.min(distances); // return the smallest cumulated distance to go through all destinations
+        // return the smallest cumulated distance to go through the list of destinations
+        return Collections.min(distances);
     }
 
     /**
@@ -81,7 +83,8 @@ public class PathFinder {
         // Starting virtual state
         VirtualState state = new VirtualState(startingCell, destinationCells);
         // the set of already visited cells (avoid cycles when browsing the cells)
-        Set<CellPerception> closed = new HashSet<>();
+//        Set<CellPerception> closed = new HashSet<>();
+        Set<VirtualState> closed = new HashSet<>();
         // a priority queue of the next states to first browse
         PriorityQueue<VirtualState> nextStates = new PriorityQueue<>(10, new Comparator<>() {
             @Override
@@ -93,20 +96,28 @@ public class PathFinder {
         nextStates.add(state); // Add first the initial state to the queue of next states to browse
 
         while(true){
-            if (nextStates.isEmpty()) // If no more next states are available for the agent,
+            if (nextStates.isEmpty()) { // If no more next states are available for the agent,
+//                for (CellPerception[] d: destinationCells){
+//                    System.out.println("\nDestination Tuple:");
+//                    for(CellPerception cell: d){
+//                        System.out.print(cell.getCoordinates());
+//                    }
+//                }
                 return new ArrayList<>(); // no path was found
+            }
 
             state = nextStates.poll(); // Retrieve and remove the first state in the priority queue
 //            System.out.println(priorityFunction(state));
             if (state.isTerminal()) // If the agent is in a terminal state
                 return state.getPaths(); // return the optimal path found
 
-            closed.add(state.getCurrentCell()); // Add the current cell to the set of already visited cells
+//            closed.add(state.getCurrentCell()); // Add the current cell to the set of already visited cells
+            closed.add(state);
 
             // For every next legal state available
             for(VirtualState nextState: virtualEnvironment.getNextStates(state)){
                 // if the cell the agent arrives to was not already visited
-                if (!closed.contains(nextState.getCurrentCell())){
+                if (!closed.contains(nextState)){ //(!closed.contains(nextState.getCurrentCell())){
 //                    TO DO: implement the correct version here under
 //                    // if the next state is already in the list of next states
 //                    if(nextStates.contains(nextState)) {
@@ -120,9 +131,11 @@ public class PathFinder {
 //                    }
 
                     // if the state is not already in the priority queue
-                    // (This part of the implementation is not exact, we should implement the version in comments above)
+                    // (This part of the implementation is not exact if the score function is not monotonically
+                    // increasing, we should then implement the version in comments above
+                    // but in our case we do not have to)
                     if(!nextStates.contains(nextState))
-                        //System.out.println("Next State added to priority queue: " + nextState.getCurrentCell().getCoordinates());
+//                        System.out.println("Next State added to priority queue: " + nextState.getCurrentCell().getCoordinates());
                         nextStates.add(nextState); // we add it to the queue of next states to browse
                 }
             }

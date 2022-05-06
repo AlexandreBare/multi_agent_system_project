@@ -1,4 +1,4 @@
-package agent.behavior.task_coordination;
+package agent.behavior.planned_charging;
 
 import agent.AgentAction;
 import agent.AgentCommunication;

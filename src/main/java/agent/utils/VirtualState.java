@@ -13,7 +13,8 @@ public class VirtualState {
     private Set<CellPerception[]> destinationCells; // the destination cells the agent should go to,
                                                     // there may be more than one cell the agent has to go to on his way
     private MovementManager movementManager;
-    private List<List<Coordinate>> paths; // the paths that the fictive agent has taken to arrive to the current cell coordinates
+    private List<List<Coordinate>> paths; // the paths that the fictive agent has taken to arrive to the
+                                          // current cell coordinates
     private VirtualState previousState; // the state before the current one
 //    private List<VirtualState> previousStates; // the list of previous states before arriving to the current one
 
@@ -69,6 +70,8 @@ public class VirtualState {
         // destinations of the list.
         Set<CellPerception[]> oldDestinationCells = previousState.getDestinationCells();
         this.destinationCells = new HashSet<>();
+        Set<CellPerception[]> newDestinationCells = new HashSet<>();
+        int minDestinationCellListSize = Integer.MAX_VALUE;
         for(CellPerception[] oldDestinationCellList: oldDestinationCells){ // we loop over all lists of destinations in the set
             CellPerception[] newDestinationCellList = new CellPerception[]{};
             // if the first destination of the current list has been reached at the previous state
@@ -100,7 +103,18 @@ public class VirtualState {
 ////                // there is a destination)
 ////                this.path.add(this.currentCell.getCoordinates());
 //            }
-            this.destinationCells.add(newDestinationCellList); // we update the set of list of destinations
+//            this.destinationCells.add(newDestinationCellList); // we update the set of list of destinations
+            minDestinationCellListSize = Math.min(minDestinationCellListSize, newDestinationCellList.length);
+            newDestinationCells.add(newDestinationCellList); // save each new list of destinations
+        }
+        // for each updated destination cell list
+        for (CellPerception[] newDestinationCellList: newDestinationCells){
+            // if its length is not equal to the smallest destination cell list length, we do not save it in the
+            // destination cells as it means that the current path of the current state does not aim to go there. It has
+            // already decided to start on another list of destination cells
+            if (newDestinationCellList.length == minDestinationCellListSize) {
+                this.destinationCells.add(newDestinationCellList);
+            }
         }
 //        System.out.println("Destination Cells: ");
 //        Iterator<CellPerception[]> iterator = this.destinationCells.iterator();
@@ -110,12 +124,14 @@ public class VirtualState {
 //            }
 //            System.out.print("\n");
 //        }
-
+        // If the state corresponds to a non-walkable destination, we now need to build a new path to the next
+        // destination. So we add a new sublist for that.
         if(isCurrentDestinationNonWalkable()){
 //            System.out.println("NonWalkableDestination");
             this.paths.add(new ArrayList<Coordinate>());
             //this.paths.get(this.paths.size()-1).add(this.currentCell.getCoordinates());
         }else {
+            // Otherwise, we simply append this new state coordinates to the current path
             this.paths.get(this.paths.size() - 1).add(this.currentCell.getCoordinates());
         }
 
@@ -143,21 +159,20 @@ public class VirtualState {
      *  This happens when the list has been reduced to the point where there are no destination cells left to reach)
      */
     public boolean isTerminal(){
-        for (CellPerception[] destinationCellList: destinationCells){ // for each possible list of destinations
+        for (CellPerception[] destinationCellList: destinationCells){ // For each possible list of destinations
             //isTerminal = isTerminal || (destinationCellList.length == 0); // no destination left to go to
+            // If there is only the final destination left in the list and we have reached it
             if (destinationCellList.length == 1 && isCurrentDestination(destinationCellList[0])){
 //                System.out.println("Terminal: " + destinationCellList[0].getCoordinates());
                 return true;
             }
-            //.getCoordinates().equals(destinationCellList[0].getCoordinates()));
         }
         return false;
     }
 
     /**
      * Whether the current state cell is the first destination of one the lists of destinations.
-     * (i.e. the fictive agent has reached a neighboring cell of the first cell of one of the lists of destination
-     * cells)
+     * (i.e. the fictive agent has reached the first cell of one of the lists of destination cells)
      * It does not necessarily correspond to a terminal state.
      */
     public boolean isCurrentDestination(){
@@ -171,7 +186,7 @@ public class VirtualState {
     }
 
     /**
-     * Whether we have reached a neighboring cell to a given destination cell.
+     * Whether we have reached a destination cell.
      * It does not necessarily correspond to a terminal state.
      */
     public boolean isCurrentDestination(CellPerception destinationCell){

@@ -24,7 +24,7 @@ nbArgs 0
 # ---------------------------------------------------------------
 # The amount of behavior changes for the agent
 # ---------------------------------------------------------------
-nbChanges 6
+nbChanges 7
 
 # First change, from behavior with ID 1 to behavior with ID 2
 agent.behavior.task_coordination.change.HasPacketToDeliver
@@ -33,7 +33,12 @@ priority 0 # Higher value −> higher priority (in case of multiple satisfied ch
 source 1 # ID of starting behavior
 target 2 # ID of resulting behavior
 
-# Second change, from behavior with ID 2 to behavior with ID 1
+agent.behavior.task_coordination.change.HasPacketToGather
+nbArgs 0
+priority 0
+source 1
+target 3
+
 agent.behavior.task_coordination.change.HasNoPacket
 nbArgs 0
 priority 0
@@ -63,22 +68,3 @@ nbArgs 0
 priority 4
 source 5
 target 1
-
-
-#agent.behavior.task_coordination.change.NeedsBattery
-#nbArgs 0
-#priority 1
-#source 2
-#target 4
-
-#agent.behavior.task_coordination.change.IsAboveCharger
-#nbArgs 0
-#priority 2
-#source 1
-#target 5
-
-#agent.behavior.task_coordination.change.IsAboveCharger
-#nbArgs 0
-#priority 2
-#source 2
-#target 5
