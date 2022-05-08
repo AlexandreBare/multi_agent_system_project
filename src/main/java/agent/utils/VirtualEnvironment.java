@@ -70,7 +70,6 @@ public class VirtualEnvironment {
             CellPerception nextCell = this.getCell(nextCoordinates);
             if (nextCell != null) {
                 VirtualState nextState = new VirtualState(state, nextCell);
-
                 // If the cell is walkable or is an intermediate/final destination
                 if (nextCell.isWalkable() || nextState.isCurrentDestination()) {
 //                    System.out.println("Next State: " + nextState.getCurrentCell().getCoordinates());

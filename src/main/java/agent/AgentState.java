@@ -86,6 +86,14 @@ public interface AgentState {
     CellPerception getNeighbouringCellWithPacket();
 
     /**
+     * Find the set of neighbouring cells that contain a packet
+     *
+     * @return          A set of neighbouring cells that contain a packet,
+     *                  null if no neighbouring cell contains a packet
+     */
+    Set<CellPerception> getNeighbouringCellsWithPacket();
+
+    /**
      * Find cells in the agent's perception area that contain a packet
      *
      * @return          A set of cells that contain a packet,

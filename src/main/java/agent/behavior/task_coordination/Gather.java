@@ -48,12 +48,12 @@ public class Gather extends Behavior {
             Coordinate agentCoordinates = agentState.getCoordinates();
             int distAgentGathering = agentCoordinates.distanceFrom(gatheringCoordinates);
             // if the agent is close enough from the gathering place to put down his packet
-            if (distAgentGathering <= GATHERING_RADIUS + 1) {
+            if (distAgentGathering <= GATHERING_RADIUS) { // + 1
                 // Sort the delivering directions to put down the packet in priority to the cells which are the closest
                 // from the gathering place
                 Coordinate deliverDirection = gatheringCoordinates.diff(agentCoordinates);
                 MovementManager movementManager = new MovementManager();
-                movementManager.sort(deliverDirection);
+                movementManager.sort(deliverDirection, "ManhattanDistance");
                 List<Coordinate> deliverDirections = movementManager.getMoves();
                 // For each delivering direction
                 for(Coordinate deliverRelPos: deliverDirections) {
@@ -261,6 +261,23 @@ public class Gather extends Behavior {
                 if (!shortestPaths.isEmpty() && !shortestPaths.get(0).isEmpty()) {
                     agentState.addMemoryFragment("ShortestPath2Gather", Coordinate.coordinates2String(shortestPaths.get(0)));
 //                    System.out.println(agentState.getName() + " - Gather - Shortest path 2 gather: " + Coordinate.coordinates2String(shortestPaths.get(0)));
+                }
+            }
+        }
+
+        // If still no path to a gathering place exists
+        if (!agentState.getMemoryFragmentKeys().contains("ShortestPath2Gather")){
+            // Let's put down the packet anywhere at random
+            Coordinate agentCoordinates = agentState.getCoordinates();
+            MovementManager movementManager2 = new MovementManager();
+            movementManager2.shuffle(rand);
+            List<Coordinate> moves = movementManager2.getMoves();
+            for(Coordinate move: moves) {
+                CellPerception deliverCell = agentState.getPerception().getCellPerceptionOnRelPos(move.getX(), move.getY());
+                if (deliverCell.isFree()) {
+                    agentAction.putPacket(agentCoordinates.getX() + move.getX(),
+                            agentCoordinates.getY() + move.getY());
+                    return;
                 }
             }
         }

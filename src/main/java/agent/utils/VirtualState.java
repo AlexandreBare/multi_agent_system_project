@@ -31,8 +31,9 @@ public class VirtualState {
         this.movementManager = new MovementManager();
         this.paths = new ArrayList<List<Coordinate>>();
         this.paths.add(new ArrayList<Coordinate>());
-        //this.paths.get(this.paths.size()-1).add(this.currentCell.getCoordinates());
         this.previousState = null;
+
+        //this.paths.get(this.paths.size()-1).add(this.currentCell.getCoordinates());
 //        this.previousStates = new ArrayList<>();
 
 //        System.out.println("Destination Cells__: ");
@@ -124,16 +125,23 @@ public class VirtualState {
 //            }
 //            System.out.print("\n");
 //        }
-        // If the state corresponds to a non-walkable destination, we now need to build a new path to the next
+
+        // If the previous state corresponds to a non-walkable destination, we now need to build a new path to the next
         // destination. So we add a new sublist for that.
-        if(isCurrentDestinationNonWalkable()){
-//            System.out.println("NonWalkableDestination");
+//        if(previousState.isCurrentDestinationNonWalkable()){
+//            this.paths.add(new ArrayList<Coordinate>());
+//        }
+        // We append the new state coordinates to the current path
+        this.paths.get(this.paths.size() - 1).add(this.currentCell.getCoordinates());
+
+        if(isCurrentDestination()){//isCurrentDestinationNonWalkable()){
             this.paths.add(new ArrayList<Coordinate>());
-            //this.paths.get(this.paths.size()-1).add(this.currentCell.getCoordinates());
-        }else {
-            // Otherwise, we simply append this new state coordinates to the current path
-            this.paths.get(this.paths.size() - 1).add(this.currentCell.getCoordinates());
         }
+
+//        else {
+//            // Otherwise, we simply append this new state coordinates to the current path
+//            this.paths.get(this.paths.size() - 1).add(this.currentCell.getCoordinates());
+//        }
 
 //        System.out.println(this.paths);
 //        System.out.println("Destination Cells: ");
@@ -171,7 +179,7 @@ public class VirtualState {
     }
 
     /**
-     * Whether the current state cell is the first destination of one the lists of destinations.
+     * Whether the current state cell is the first destination of one of the lists of destinations.
      * (i.e. the fictive agent has reached the first cell of one of the lists of destination cells)
      * It does not necessarily correspond to a terminal state.
      */
