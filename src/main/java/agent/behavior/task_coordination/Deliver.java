@@ -110,7 +110,6 @@ public class Deliver extends Behavior {
             // Run A* to find the shortest path from the agent's current cell to one of the possible terminal cells
             List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, destinationCells);
             if (!shortestPaths.isEmpty() && !shortestPaths.get(0).isEmpty()) {
-//                System.out.println("Deliver - Shortest path 2 destination: " + Coordinate.coordinates2String(shortestPaths.get(0)));
                 // Store to memory the shortest path to the closest destination
                 agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(0)));
             }

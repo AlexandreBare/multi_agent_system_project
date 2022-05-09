@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 public class Pickup extends Behavior {
     Random rand = new Random(42);
-    float RANDOM_EXPLORATION_RATE = 0.2f;//0.2f;
+    float RANDOM_EXPLORATION_RATE = 0.2f;
     int GATHERING_RADIUS = 2;
 
     @Override
@@ -33,14 +33,6 @@ public class Pickup extends Behavior {
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {
-//        if (agentState.getMemoryFragmentKeys().contains("ShortestPath2Destination")){
-//            System.out.println(agentState.getName() + " --- Pickup --- Aiming to deliver to a destination");
-//        }
-//        if (agentState.getMemoryFragmentKeys().contains("ShortestPath2Gather")){
-//            System.out.println(agentState.getName() + " --- Pickup --- Aiming to deliver to a gathering place");
-//        }
-
-
         ///////////// Memorize all representations that the agent can see in his perception area /////////////
         agentState.memorizeAllPerceivableRepresentations();
 
@@ -54,7 +46,6 @@ public class Pickup extends Behavior {
         // Check for a neighbouring packet to pick up
         Set<CellPerception> packetCells = agentState.getNeighbouringCellsWithPacket();
         for(CellPerception packetCell: packetCells) {
-//            if (packetCell != null) {
             Color packetColor = packetCell.getRepOfType(PacketRep.class).getColor();
             // If the agent has no specific preference (i.e. he is of color black and thus returns an empty Optional object)
             // or if the agent's color match the packet color, he will be able to pick it up
@@ -69,10 +60,6 @@ public class Pickup extends Behavior {
                     if (agentState.getMemoryFragmentKeys().contains("ShortestPath2Destination")
                             || agentState.getMemoryFragmentKeys().contains("ShortestPath2Gather")) {
                         boolean canPickup = true;
-                        //                        if (agentState.getMemoryFragmentKeys().contains("ShortestPath2Destination")
-                        //                                && agentState.getMemoryFragmentKeys().contains("ShortestPath2Gather")) {
-                        //                            System.out.println("Problem ShortestPath2Destination + ShortestPath2Gather");
-                        //                        }
                         // if the agent knows a path to a gathering place (rather than a destination) for a packet
                         if (agentState.getMemoryFragmentKeys().contains("ShortestPath2Gather")) {
                             // we check if the packet is already close enough to the gathering place, in which case the
@@ -80,10 +67,8 @@ public class Pickup extends Behavior {
                             List<Coordinate> shortestPath2Gather = Coordinate.string2Coordinates(agentState.getMemoryFragment("ShortestPath2Gather"));
                             Coordinate gatheringCoordinates = shortestPath2Gather.get(shortestPath2Gather.size() - 1);
                             if (packetCell.getCoordinates().distanceFrom(gatheringCoordinates) <= GATHERING_RADIUS) {
-                                //                                System.out.println("No need to pick up...");
                                 canPickup = false;
                                 agentState.removeMemoryFragment("ShortestPath2Gather"); // Remove the path to the packet from memory
-                                //                                System.out.println(packetCell.getCoordinates() + ": too close to a gathering place to pick up :" + gatheringCoordinates);
                             }
                             agentState.removeMemoryFragment("ShortestPath2Packet"); // Remove the path to the packet from memory
                         }
@@ -98,7 +83,6 @@ public class Pickup extends Behavior {
                     }
                 }
             }
-//            }
         }
 
 
@@ -119,7 +103,6 @@ public class Pickup extends Behavior {
             CellPerception agentLastCell = agentState.getPerceptionLastCell();
             if (agentLastCell != null) {
                 Coordinate agentLastCoordinates = agentLastCell.getCoordinates();
-                //            System.out.println(agentLastCoordinates);
                 Coordinate agentCurrentCoordinates = new Coordinate(agentState.getX(), agentState.getY());
                 // Compute the last move that the agent has done to go from agentLastCoordinates to agentCurrentCoordinates
                 Coordinate lastMove = agentCurrentCoordinates.diff(agentLastCoordinates);
@@ -211,9 +194,6 @@ public class Pickup extends Behavior {
                                 virtualEnvironment.getCell(packetCoordinates),
                                 virtualEnvironment.getCell(destinationCoordinates)
                         });
-                        if (destinationCoordinates == null || packetCoordinates == null){
-                            System.out.println("Null ---- packetCoordinates: " + packetCoordinates + " _ destinationCoordinatesList: " + destinationCoordinatesList + " _ size: " + destinationCoordinatesList.size());
-                        }
                     }
                 }
             }
@@ -225,36 +205,18 @@ public class Pickup extends Behavior {
                 List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
                 // if a path exists to the destinations
                 if (!shortestPaths.isEmpty()){
-                    if (shortestPaths.size() < 2){
-                        System.out.println(agentState.getName() + " - Pickup - Shortest path 2 packet: " + Coordinate.coordinates2String(shortestPaths.get(0)));
-                    }
                     // Store to memory the shortest path to the closest packet
                     List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
                     List<Coordinate> shortestPath2Destination = shortestPaths.get(1);
                     if(!shortestPath2Packet.isEmpty()) { // only a non empty path is interesting
                         agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPaths.get(0)));
-//                        System.out.println(agentState.getName() + " - Pickup - Shortest path 2 packet: " + Coordinate.coordinates2String(shortestPaths.get(0)));
-                    }else{
-                        System.out.println(agentState.getName() + " -- Pickup -- Empty path 2 packet -- Problem ShortestPath2Destination");
                     }
                     if(!shortestPath2Destination.isEmpty()) { // only a non empty path is interesting
                         agentState.removeMemoryFragment("ShortestPath2Gather");
                         agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(1)));
-//                        System.out.println(agentState.getName() + " - Pickup - Shortest path 2 destination: " + Coordinate.coordinates2String(shortestPaths.get(1)));
-                    }else{
-                        System.out.println(agentState.getName() + " -- Pickup -- Shortest path 2 packet: " + Coordinate.coordinates2String(shortestPaths.get(0)));
-                        System.out.println(agentState.getName() + " -- Pickup -- Empty path 2 destination -- Problem ShortestPath2Destination");
                     }
-
                 }
-//                else{
-//                    System.out.println("Pickup -- Problem ShortestPath2Destination");
-//                    agentState.prettyPrintWorld();
-//                }
             }
-//            else{
-//                System.out.println("Pickup -- No destination -- Problem ShortestPath2Destination");
-//            }
         }
 
 
@@ -307,12 +269,9 @@ public class Pickup extends Behavior {
                 // Compute the gathering place as the average of all packets coordinates (of the same color)
                 Coordinate gatheringCoordinates = new Coordinate(0, 0);
                 for(Coordinate otherPacketCoordinates: packetCoordinatesList) {
-                    //if (!packetCoordinates.equals(otherPacketCoordinates)) {
                     gatheringCoordinates = gatheringCoordinates.add(otherPacketCoordinates);
-                    //}
                 }
-                gatheringCoordinates = gatheringCoordinates.divideBy(packetCoordinatesList.size());//-1);
-//                System.out.println("gatheringCoordinates: " + gatheringCoordinates + " _ packetCoordinatesList: " + packetCoordinatesList + " _ size: " + packetCoordinatesList.size());
+                gatheringCoordinates = gatheringCoordinates.divideBy(packetCoordinatesList.size());
                 // We only plan on moving a packet closer to the gathering place if it is not already close enough
                 if(gatheringCoordinates.distanceFrom(packetCoordinates) > GATHERING_RADIUS) {
                     // Get the fictive cells from the fictive environment of the packets we know
@@ -320,9 +279,6 @@ public class Pickup extends Behavior {
                             virtualEnvironment.getCell(packetCoordinates),
                             virtualEnvironment.getCell(gatheringCoordinates)
                     });
-//                    if (gatheringCoordinates == null || packetCoordinates == null){
-//                        System.out.println("Null ---- gatheringCoordinates: " + gatheringCoordinates + " _ packetCoordinatesList: " + packetCoordinatesList + " _ size: " + packetCoordinatesList.size());
-//                    }
                 }
             }
 
@@ -339,16 +295,12 @@ public class Pickup extends Behavior {
                     // Store to memory the shortest path to the closest packet
                     if(!shortestPath2Packet.isEmpty()) {
                         agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPaths.get(0)));
-//                        System.out.println(agentState.getName() + " - Pickup - Shortest path 2 packet: " + Coordinate.coordinates2String(shortestPaths.get(0)));
                     }
                     // Store to memory the shortest path from the packet to the closest gathering place
                     if(!shortestPath2Gather.isEmpty()) {
                         agentState.removeMemoryFragment("ShortestPath2Destination");
                         agentState.addMemoryFragment("ShortestPath2Gather", Coordinate.coordinates2String(shortestPaths.get(1)));
-//                        System.out.println(agentState.getName() + " - Pickup - Shortest path 2 gather: " + Coordinate.coordinates2String(shortestPaths.get(1)));
                     }
-                }else{
-//                    System.out.println("Pickup -- Problem ShortestPath2Gather");// -- AgentDestinationCells: ");
                 }
             }
         }

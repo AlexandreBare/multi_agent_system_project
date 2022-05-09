@@ -16,7 +16,6 @@ public class VirtualState {
     private List<List<Coordinate>> paths; // the paths that the fictive agent has taken to arrive to the
                                           // current cell coordinates
     private VirtualState previousState; // the state before the current one
-//    private List<VirtualState> previousStates; // the list of previous states before arriving to the current one
 
     /**
      * Initialize a new fictive agent state
@@ -32,18 +31,6 @@ public class VirtualState {
         this.paths = new ArrayList<List<Coordinate>>();
         this.paths.add(new ArrayList<Coordinate>());
         this.previousState = null;
-
-        //this.paths.get(this.paths.size()-1).add(this.currentCell.getCoordinates());
-//        this.previousStates = new ArrayList<>();
-
-//        System.out.println("Destination Cells__: ");
-//        Iterator<CellPerception[]> iterator = this.destinationCells.iterator();
-//        while(iterator.hasNext()) {
-//            for (CellPerception destinationCell : iterator.next()) {
-//                System.out.print(destinationCell.getCoordinates());
-//            }
-//            System.out.print("\n");
-//        }
     }
 
     /**
@@ -56,15 +43,11 @@ public class VirtualState {
         this.currentCell = nextCell;
         this.movementManager = new MovementManager();
         this.previousState = previousState;
-        //System.out.println(previousState.getPaths().size());
         // the path of the new state is retrieved from the one of the previous state
         this.paths = new ArrayList<>();
         for(List<Coordinate> path: previousState.getPaths()) {
             this.paths.add(new ArrayList<>(path));
         }
-        //this.paths = new ArrayList<>(previousState.getPaths());
-//        System.out.println(this.paths.size());
-//        System.out.println(this.paths.get(0).size());
 
         // The set of lists of destination cells will be updated if the new virtual state has reached the first destination
         // in at least of one of the lists. This intermediate destination can be removed to focus on the remaining
@@ -85,26 +68,7 @@ public class VirtualState {
             }else {
                 // otherwise, we keep the current list as it was
                 newDestinationCellList = oldDestinationCellList;
-//                // We only add to the current path the current cell if it is not a destination cell because
-//                // in practice, the agent will not need to move exactly to a destination cell
-//                // (he does not need to walk on the cell where he picked a packet and can not move onto a cell where
-//                // there is a destination)
-//                this.path.add(this.currentCell.getCoordinates());
             }
-//            if(oldDestinationCellList[0].equals(currentCell) && oldDestinationCellList.length > 1){
-//                // we copy only the last part of this list because as of now the first destination has been reached. It
-//                // is therefore not necessary to come back to it anymore.
-//                newDestinationCellList = Arrays.copyOfRange(oldDestinationCellList, 1, oldDestinationCellList.length-1);
-//            }else {
-//                // otherwise, we keep the current list as it was
-//                newDestinationCellList = oldDestinationCellList;
-////                // We only add to the current path the current cell if it is not a destination cell because
-////                // in practice, the agent will not need to move exactly to a destination cell
-////                // (he does not need to walk on the cell where he picked a packet and can not move onto a cell where
-////                // there is a destination)
-////                this.path.add(this.currentCell.getCoordinates());
-//            }
-//            this.destinationCells.add(newDestinationCellList); // we update the set of list of destinations
             minDestinationCellListSize = Math.min(minDestinationCellListSize, newDestinationCellList.length);
             newDestinationCells.add(newDestinationCellList); // save each new list of destinations
         }
@@ -117,48 +81,15 @@ public class VirtualState {
                 this.destinationCells.add(newDestinationCellList);
             }
         }
-//        System.out.println("Destination Cells: ");
-//        Iterator<CellPerception[]> iterator = this.destinationCells.iterator();
-//        while(iterator.hasNext()) {
-//            for (CellPerception destinationCell : iterator.next()) {
-//                System.out.print(destinationCell.getCoordinates());
-//            }
-//            System.out.print("\n");
-//        }
 
-        // If the previous state corresponds to a non-walkable destination, we now need to build a new path to the next
-        // destination. So we add a new sublist for that.
-//        if(previousState.isCurrentDestinationNonWalkable()){
-//            this.paths.add(new ArrayList<Coordinate>());
-//        }
         // We append the new state coordinates to the current path
         this.paths.get(this.paths.size() - 1).add(this.currentCell.getCoordinates());
 
+        // If the current state corresponds to a destination, we now need to build a new path to the next
+        // destination. So we add a new sublist for that.
         if(isCurrentDestination()){//isCurrentDestinationNonWalkable()){
             this.paths.add(new ArrayList<Coordinate>());
         }
-
-//        else {
-//            // Otherwise, we simply append this new state coordinates to the current path
-//            this.paths.get(this.paths.size() - 1).add(this.currentCell.getCoordinates());
-//        }
-
-//        System.out.println(this.paths);
-//        System.out.println("Destination Cells: ");
-//        Iterator<CellPerception[]> iterator = this.destinationCells.iterator();
-//        while(iterator.hasNext()) {
-//            for (CellPerception destinationCell : iterator.next()) {
-//                System.out.print(destinationCell.getCoordinates());
-//            }
-//            System.out.print("\n");
-//        }
-
-//        // the path of the new state is retrieved from the one of the previous state
-//        this.path = new ArrayList<>(previousState.getPath());
-//        this.path.add(this.currentCell.getCoordinates());
-
-//        this.previousStates = new ArrayList<>(previousState.getPreviousStates());
-//        this.previousStates.add(previousState);
     }
 
     /**
@@ -168,10 +99,8 @@ public class VirtualState {
      */
     public boolean isTerminal(){
         for (CellPerception[] destinationCellList: destinationCells){ // For each possible list of destinations
-            //isTerminal = isTerminal || (destinationCellList.length == 0); // no destination left to go to
             // If there is only the final destination left in the list and we have reached it
             if (destinationCellList.length == 1 && isCurrentDestination(destinationCellList[0])){
-//                System.out.println("Terminal: " + destinationCellList[0].getCoordinates());
                 return true;
             }
         }
@@ -184,7 +113,6 @@ public class VirtualState {
      * It does not necessarily correspond to a terminal state.
      */
     public boolean isCurrentDestination(){
-//        boolean isCurrentDestination = false;
         for (CellPerception[] destinationCellList: destinationCells) {
             if (isCurrentDestination(destinationCellList[0])){
                 return true;
@@ -198,20 +126,7 @@ public class VirtualState {
      * It does not necessarily correspond to a terminal state.
      */
     public boolean isCurrentDestination(CellPerception destinationCell){
-//        Coordinate currentCoordinates = currentCell.getCoordinates();
-//        Coordinate currentDestinationCoordinates = destinationCell.getCoordinates();
-//        Coordinate neighboringCoordinates;
-//        for (Coordinate move: movementManager.getMoves()){
-//            neighboringCoordinates = currentDestinationCoordinates.add(move);
-//            if (currentCoordinates.equals(neighboringCoordinates)){
-//                return true;
-//            }
-//        }
-//        return false;
         return currentCell.getCoordinates().equals(destinationCell.getCoordinates());
-//            isCurrentDestination = isCurrentDestination ||
-//                    currentCell.getCoordinates().equals(destinationCellList[0].getCoordinates());
-//        return false;//isCurrentDestination;
     }
 
     public boolean isCurrentDestinationNonWalkable(){
@@ -224,7 +139,6 @@ public class VirtualState {
             pathLength += path.size();
         }
         return pathLength;
-        //return path.size();
     }
 
     public List<List<Coordinate>> getPaths(){
@@ -232,12 +146,8 @@ public class VirtualState {
     }
 
     public VirtualState getPreviousState(){
-        return previousState;//previousStates.get(previousStates.size()-1);
+        return previousState;
     }
-
-//    public List<VirtualState> getPreviousStates(){
-//        return previousStates;
-//    }
 
     public CellPerception getCurrentCell(){
         return currentCell;

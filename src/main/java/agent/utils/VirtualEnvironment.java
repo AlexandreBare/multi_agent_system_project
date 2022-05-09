@@ -37,11 +37,6 @@ public class VirtualEnvironment {
      */
     public CellPerception getCell(Coordinate coordinates){
         CellPerception cell = coordinates2Cells.get(coordinates);
-//        if(cell==null) { // unperceivable and unknown cells (i.e. null cells) are considered to be solid walls
-//            System.out.println(coordinates);
-//            cell = new CellPerception(coordinates);
-//            cell.addRep(new SolidWallRep(coordinates));
-//        }
         return cell;
     }
 
@@ -51,7 +46,6 @@ public class VirtualEnvironment {
      * @param state     the current fictive state
      */
     public List<VirtualState> getNextStates(VirtualState state){
-//        System.out.println("Current state: " + state.getCurrentCell().getCoordinates() + " -- Next States:");
         List<VirtualState> nextStates = new ArrayList<>();
         // The current agent cell is the one of the current state except if it is a non walkable intermediate/final
         // destination cell (i.e. a cell with a packet or a destination). In this case, the agent can not walk
@@ -72,7 +66,6 @@ public class VirtualEnvironment {
                 VirtualState nextState = new VirtualState(state, nextCell);
                 // If the cell is walkable or is an intermediate/final destination
                 if (nextCell.isWalkable() || nextState.isCurrentDestination()) {
-//                    System.out.println("Next State: " + nextState.getCurrentCell().getCoordinates());
                     nextStates.add(nextState); // Add it to the list of next available states
                 }
             }

@@ -97,21 +97,14 @@ public class PathFinder {
 
         while(true){
             if (nextStates.isEmpty()) { // If no more next states are available for the agent,
-//                for (CellPerception[] d: destinationCells){
-//                    System.out.println("\nDestination Tuple:");
-//                    for(CellPerception cell: d){
-//                        System.out.print(cell.getCoordinates());
-//                    }
-//                }
                 return new ArrayList<>(); // no path was found
             }
 
             state = nextStates.poll(); // Retrieve and remove the first state in the priority queue
-//            System.out.println(priorityFunction(state));
             if (state.isTerminal()) // If the agent is in a terminal state
                 return state.getPaths(); // return the optimal path found
 
-//            closed.add(state.getCurrentCell()); // Add the current cell to the set of already visited cells
+            // Add the current state to the set of already visited states
             closed.add(state);
 
             // For every next legal state available
@@ -135,7 +128,6 @@ public class PathFinder {
                     // increasing, we should then implement the version in comments above
                     // but in our case we do not have to)
                     if(!nextStates.contains(nextState))
-//                        System.out.println("Next State added to priority queue: " + nextState.getCurrentCell().getCoordinates());
                         nextStates.add(nextState); // we add it to the queue of next states to browse
                 }
             }
