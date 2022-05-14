@@ -1,17 +1,16 @@
-package agent.behavior.a_star_multi_targets;
+package agent.behavior.task_coordination;
 
 import agent.AgentAction;
 import agent.AgentCommunication;
 import agent.AgentState;
 import agent.behavior.Behavior;
+import agent.utils.MovementManager;
 import agent.utils.PathFinder;
 import agent.utils.VirtualEnvironment;
 import environment.CellPerception;
 import environment.Coordinate;
-import agent.utils.MovementManager;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.Packet;
-import environment.world.wall.WallRep;
 import util.MyColor;
 
 import java.awt.*;
@@ -52,6 +51,7 @@ public class Deliver extends Behavior {
         // Check for a neighbouring destination of the right color to deliver the packet
         CellPerception destinationCell = agentState.getNeighbouringCellWithDestination(packetColor);
         if (destinationCell != null) { // If a matching destination is found
+            agentState.removeMemoryFragment("ShortestPath2Destination"); // Remove path to destination from memory
             agentAction.putPacket(destinationCell.getX(), destinationCell.getY()); // Deliver the packet
             return;
         }
@@ -69,10 +69,10 @@ public class Deliver extends Behavior {
             // Compute the last move that the agent has done to go from agentLastCoordinates to agentCurrentCoordinates
             Coordinate lastMove = agentCurrentCoordinates.diff(agentLastCoordinates);
             // Compute the opposite move to this last move
-            Coordinate backwardMove = new Coordinate(0, 0).diff(lastMove);
+            //Coordinate backwardMove = new Coordinate(0, 0).diff(lastMove);
             // Remove the opposite move so that the agent can not go backwards.
             // It forces the agent not to stick to the same region and instead "explore" the environment
-            movementManager.remove(backwardMove);
+            //movementManager.remove(backwardMove);
             // Pre-sort the remaining available moves by their manhattan distance to the last move.
             // It pushes the agent to continue moving in a direction as close as possible to the last one
             // but does not strictly force him to do so if it happens not to be possible to go this way.
@@ -81,15 +81,15 @@ public class Deliver extends Behavior {
 
 
         ///////////// Criterion 2: Let's follow the closest path to a destination that matches /////////////
-        ///////////// the packet color. This path was found by A* at FindPath behavior         /////////////
+        ///////////// the packet color.                                                        /////////////
 
         // Run A* to find an optimal path to the closest destination of the right color if no path has been computed yet
-        if (!agentState.getMemoryFragmentKeys().contains("ClosestDestinationPath")){
+        if (!agentState.getMemoryFragmentKeys().contains("ShortestPath2Destination")){
             // Convert all stored cell information to a list of cells
             Set<CellPerception> cells = agentState.memory2Cells();
             // Create a fictive environment with these cells and the object that manages moves
             VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells, movementManager);
-            // Create a path finder object that can search the shortest paths to specific destinations in the fictive
+            // Create a PathFinder object that can search the shortest paths to specific destinations in the fictive
             // environment
             PathFinder pathFinder = new PathFinder(virtualEnvironment);
 
@@ -102,33 +102,31 @@ public class Deliver extends Behavior {
             String memoryFragment = agentState.getMemoryFragment(memoryKey);
             List<Coordinate> coordinatesList = Coordinate.string2Coordinates(memoryFragment);
             // Get the fictive cells from the fictive environment of the destination we know
-            Set<CellPerception> destinationCells = new HashSet<>();
+            Set<CellPerception[]> destinationCells = new HashSet<>();
             for(Coordinate destinationCoordinates: coordinatesList){
-                destinationCells.add(virtualEnvironment.getCell(destinationCoordinates));
+                destinationCells.add(new CellPerception[]{virtualEnvironment.getCell(destinationCoordinates)});
             }
-            // Run A* to find the shortest path from the agent's current cell to one of the possible destination cells
-            List<Coordinate> path2Destination = pathFinder.astar(agentCell, destinationCells);
 
-            // We can remove the path to the closest packet, we are anyway not following it anymore.
-            // It helps to save a spot in memory.
-            agentState.removeMemoryFragment("ClosestPacketPath");
-
-            // Store to memory the shortest path to the closest destination
-            agentState.addMemoryFragment("ClosestDestinationPath", Coordinate.coordinates2String(path2Destination));
+            // Run A* to find the shortest path from the agent's current cell to one of the possible terminal cells
+            List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, destinationCells);
+            if (!shortestPaths.isEmpty() && !shortestPaths.get(0).isEmpty()) {
+                // Store to memory the shortest path to the closest destination
+                agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(0)));
+            }
         }
 
 
         // If now a path to the closest destination exists in memory
-        if(agentState.getMemoryFragmentKeys().contains("ClosestDestinationPath")) {
+        if(agentState.getMemoryFragmentKeys().contains("ShortestPath2Destination")) {
             ///////////// Sort the moves by following the closest destination path /////////////
 
             // Retrieve the current path the agent has to follow to get to his destination
-            String memoryFragment = agentState.getMemoryFragment("ClosestDestinationPath");
+            String memoryFragment = agentState.getMemoryFragment("ShortestPath2Destination");
             List<Coordinate> path2Destination = Coordinate.string2Coordinates(memoryFragment);
 
             // Retrieve and remove from memory the next cell we should go to in this path
             Coordinate nextCoordinatesInPath = path2Destination.get(0);
-            agentState.removeFromMemory(nextCoordinatesInPath, "ClosestDestinationPath");
+            agentState.removeFromMemory(nextCoordinatesInPath, "ShortestPath2Destination");
 
             // Sort the moves to best match the direction to the next cell in the path.
             // It allows the agent not to be forced to follow exactly the optimal path if for example another

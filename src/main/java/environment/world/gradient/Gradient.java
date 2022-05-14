@@ -1,5 +1,6 @@
 package environment.world.gradient;
 
+import environment.Coordinate;
 import environment.Item;
 import gui.video.Drawer;
 
@@ -17,6 +18,17 @@ public class Gradient extends Item<GradientRep> {
      */
     public Gradient(int x, int y, int value) {
         super(x, y);
+        this.value = value;
+    }
+
+    /**
+     * Initializes a new Gradient
+     *
+     * @param coordinates   Coordinates of the Item
+     * @param value     The value of the gradient
+     */
+    public Gradient(Coordinate coordinates, int value) {
+        super(coordinates.getX(), coordinates.getY());
         this.value = value;
     }
 

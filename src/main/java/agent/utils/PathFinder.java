@@ -24,7 +24,7 @@ public class PathFinder {
     /**
      * The cost function of A*
      *
-     * @param state    the current fictive state
+     * @param state     the current fictive state
      *
      * @return  the current path length
      */
@@ -40,14 +40,22 @@ public class PathFinder {
      * @return  the Chebyshev distance to the closest destination (admissible heuristic -> ensures optimality)
      */
     public static int heuristic(VirtualState state){
-        CellPerception cell = state.getCurrentCell();
-        Set<CellPerception> destinationCells = state.getDestinationCells();
+        CellPerception currentCell = state.getCurrentCell();
+        Set<CellPerception[]> destinationCells = state.getDestinationCells();
         List<Integer> distances = new ArrayList<>();
         // Compute the distances between the different possible destinations
-        for(CellPerception destinationCell: destinationCells){
-            distances.add(cell.getCoordinates().distanceFrom(destinationCell.getCoordinates()));
+        for(CellPerception[] destinationCellList: destinationCells){
+            int dist = 0;
+            CellPerception startingCell = currentCell;
+            for(CellPerception destinationCell: destinationCellList) {
+                dist += startingCell.getCoordinates().distanceFrom(destinationCell.getCoordinates());
+                startingCell = destinationCell;
+            }
+//            dist -= destinationCellList.length - (destinationCellList.length - 1);
+            distances.add(dist);
         }
-        return Collections.min(distances); // return the distance to the closest destination
+        // return the smallest cumulated distance to go through the list of destinations
+        return Collections.min(distances);
     }
 
     /**
@@ -63,18 +71,20 @@ public class PathFinder {
 
     /**
      * Run the A* algorithm to find the shortest path
-     * from a single source cell to many possible destination cells
+     * from a single source cell to many possible destination cells with potentially many destination cells to go to
+     * before reaching the terminal cell
      *
      * @param startingCell          the starting cell
-     * @param destinationCells      the possible destination cells
+     * @param destinationCells      the possible set of lists of destination cells
      *
      * @return      the list of coordinates pairs composing the optimal path to the closest destination
      */
-    public List<Coordinate> astar(CellPerception startingCell, Set<CellPerception> destinationCells){
+    public List<List<Coordinate>> astar(CellPerception startingCell, Set<CellPerception[]> destinationCells){
         // Starting virtual state
         VirtualState state = new VirtualState(startingCell, destinationCells);
         // the set of already visited cells (avoid cycles when browsing the cells)
-        Set<CellPerception> closed = new HashSet<>();
+//        Set<CellPerception> closed = new HashSet<>();
+        Set<VirtualState> closed = new HashSet<>();
         // a priority queue of the next states to first browse
         PriorityQueue<VirtualState> nextStates = new PriorityQueue<>(10, new Comparator<>() {
             @Override
@@ -86,20 +96,21 @@ public class PathFinder {
         nextStates.add(state); // Add first the initial state to the queue of next states to browse
 
         while(true){
-            if (nextStates.isEmpty()) // If no more next states are available for the agent,
+            if (nextStates.isEmpty()) { // If no more next states are available for the agent,
                 return new ArrayList<>(); // no path was found
+            }
 
             state = nextStates.poll(); // Retrieve and remove the first state in the priority queue
-
             if (state.isTerminal()) // If the agent is in a terminal state
-                return state.getPath(); // return the optimal path found
+                return state.getPaths(); // return the optimal path found
 
-            closed.add(state.getCurrentCell()); // Add the current cell to the set of already visited cells
+            // Add the current state to the set of already visited states
+            closed.add(state);
 
             // For every next legal state available
             for(VirtualState nextState: virtualEnvironment.getNextStates(state)){
                 // if the cell the agent arrives to was not already visited
-                if (!closed.contains(nextState.getCurrentCell())){
+                if (!closed.contains(nextState)){ //(!closed.contains(nextState.getCurrentCell())){
 //                    TO DO: implement the correct version here under
 //                    // if the next state is already in the list of next states
 //                    if(nextStates.contains(nextState)) {
@@ -113,7 +124,9 @@ public class PathFinder {
 //                    }
 
                     // if the state is not already in the priority queue
-                    // (This part of the implementation is not exact, we should implement the version in comments above)
+                    // (This part of the implementation is not exact if the score function is not monotonically
+                    // increasing, we should then implement the version in comments above
+                    // but in our case we do not have to)
                     if(!nextStates.contains(nextState))
                         nextStates.add(nextState); // we add it to the queue of next states to browse
                 }

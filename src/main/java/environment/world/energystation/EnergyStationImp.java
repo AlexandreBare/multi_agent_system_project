@@ -2,6 +2,7 @@ package environment.world.energystation;
 
 import environment.ActiveItemID;
 import environment.ActiveItemImp;
+import environment.Coordinate;
 import support.ActionOutcome;
 import support.InfEnergy;
 import support.Influence;
@@ -30,6 +31,7 @@ public class EnergyStationImp extends ActiveItemImp {
     protected int getY() {
         return y;
     }
+
 
     private final int x;
     private final int y;

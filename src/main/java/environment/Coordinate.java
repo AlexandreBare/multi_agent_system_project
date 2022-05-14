@@ -85,6 +85,10 @@ public class Coordinate extends Pair<Integer, Integer> {
         return new Coordinate(first + other.first, second + other.second);
     }
 
+    public Coordinate divideBy(int divider) {
+        return new Coordinate((int) (first/divider), (int) (second/divider));
+    }
+
     /**
      * Computes the "maximum coordinate distance" (= the highest coordinate difference in absolute value)
      * between 2 pair of coordinates.

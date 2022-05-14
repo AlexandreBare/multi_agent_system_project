@@ -5,7 +5,9 @@ import java.util.Objects;
 
 import com.google.common.eventbus.EventBus;
 
+import environment.Coordinate;
 import environment.World;
+import environment.world.gradient.GradientWorld;
 
 /**
  * A class for an EnergyStationWorld, being a layer of the total world that contains
@@ -63,7 +65,10 @@ public class EnergyStationWorld extends World<EnergyStation> {
 
         // TODO: use the line below (adjust method if desired), 
         //       if you want to use gradients
-        // getEnvironment().getWorld(GradientWorld.class)
-        //     .addGradientsWithStartLocation(...);
+
+        // We will add a gradient starting form the location
+        // at which the agents can recharge: the cell above the energy station
+        Coordinate aboveEnergyStationLocation = energyStation.getCoordinates().diff(new Coordinate(0, 1));
+        getEnvironment().getWorld(GradientWorld.class).addGradientsWithStartLocation(aboveEnergyStationLocation);
     }
 }

@@ -54,6 +54,13 @@ abstract public class Item<T extends Representation> implements Representable<T>
     }
 
     /**
+     * Gets this item's coordinates
+     */
+    public Coordinate getCoordinates() {
+        return new Coordinate(x, y);
+    }
+
+    /**
      * Sets the X coordinate of this item
      * @param nx The new 'x' value
      */

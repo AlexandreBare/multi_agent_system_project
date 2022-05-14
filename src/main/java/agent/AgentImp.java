@@ -693,12 +693,30 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     public CellPerception getNeighbouringCellWithPacket(){
         var perception = this.getPerception();
         CellPerception[] neighbouringCells = perception.getNeighbours();
-        Set<CellPerception> neighbouringCellsWithPacket = new HashSet<>();
+//        Set<CellPerception> neighbouringCellsWithPacket = new HashSet<>();
         for (var cell: neighbouringCells) {
             if (cell != null && cell.containsPacket())
                 return cell;
         }
         return null;
+    }
+
+    /**
+     * Find the set of neighbouring cells that contain a packet
+     *
+     * @return          A set of neighbouring cells that contain a packet,
+     *                  null if no neighbouring cell contains a packet
+     */
+    @Override
+    public Set<CellPerception> getNeighbouringCellsWithPacket(){
+        var perception = this.getPerception();
+        CellPerception[] neighbouringCells = perception.getNeighbours();
+        Set<CellPerception> neighbouringCellsWithPacket = new HashSet<>();
+        for (var cell: neighbouringCells) {
+            if (cell != null && cell.containsPacket())
+                neighbouringCellsWithPacket.add(cell);
+        }
+        return neighbouringCellsWithPacket;
     }
 
 
@@ -865,7 +883,7 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
     @Override
     public void addMemoryFragment(String key, String data) {
         if (key != null && !key.equals("") && data != null
-                && !data.equals("") && getNbMemoryFragments() < getMaxNbMemoryFragments()) {
+                && !data.equals("")) { // && getNbMemoryFragments() < getMaxNbMemoryFragments()
             memory.put(key, data);
         }
     }

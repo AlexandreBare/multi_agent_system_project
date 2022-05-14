@@ -1,0 +1,70 @@
+description "Find shortest path to closer (packet, destination)-pair with A*. Recharges battery to the nearest station following gradient fields. Gather packets together by color if destination can not be reached"
+
+
+# ------------------------------------------------
+# The amount of the behavior states the agent has
+# ------------------------------------------------
+nbStates 5                          # 4 behavior states
+
+
+# Enumeration of the behavior agent states
+1 agent.behavior.task_coordination.Pickup
+nbArgs 0
+2 agent.behavior.task_coordination.Deliver
+nbArgs 0
+3 agent.behavior.task_coordination.Gather
+nbArgs 0
+4 agent.behavior.task_coordination.FindCharger
+nbArgs 0
+5 agent.behavior.task_coordination.Charge
+nbArgs 0
+
+
+
+# ---------------------------------------------------------------
+# The amount of behavior changes for the agent
+# ---------------------------------------------------------------
+nbChanges 7
+
+# First change, from behavior with ID 1 to behavior with ID 2
+agent.behavior.task_coordination.change.HasPacketToDeliver
+nbArgs 0
+priority 0 # Higher value −> higher priority (in case of multiple satisfied change conditions from current behavior state)
+source 1 # ID of starting behavior
+target 2 # ID of resulting behavior
+
+agent.behavior.task_coordination.change.HasPacketToGather
+nbArgs 0
+priority 0
+source 1
+target 3
+
+agent.behavior.task_coordination.change.HasNoPacket
+nbArgs 0
+priority 0
+source 2
+target 1
+
+agent.behavior.task_coordination.change.HasNoPacket
+nbArgs 0
+priority 0
+source 3
+target 1
+
+agent.behavior.task_coordination.change.NeedsBattery
+nbArgs 0
+priority 1
+source 1
+target 4
+
+agent.behavior.task_coordination.change.IsAboveCharger
+nbArgs 0
+priority 2
+source 4
+target 5
+
+agent.behavior.task_coordination.change.IsFullyCharged
+nbArgs 0
+priority 4
+source 5
+target 1

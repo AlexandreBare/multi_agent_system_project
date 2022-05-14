@@ -1,8 +1,8 @@
-package agent.behavior.a_star_multi_targets.change;
+package agent.behavior.task_coordination.change;
 
 import agent.behavior.BehaviorChange;
 
-public class HasPacket extends BehaviorChange {
+public class HasNoPacket extends BehaviorChange {
     private boolean hasPacket = false;
 
     @Override
@@ -13,7 +13,7 @@ public class HasPacket extends BehaviorChange {
     @Override
     public boolean isSatisfied() {
         // Decides when the Behavior change is triggered, i.e.,
-        // if the agent has a packet, it will change to Deliver Behaviour
-        return this.hasPacket;
+        // if the agent has no packet, it will change to Deliver Behaviour
+        return ! this.hasPacket;
     }
 }
