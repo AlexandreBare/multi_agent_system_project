@@ -111,7 +111,7 @@ public class Pickup extends Behavior {
             // Convert all stored cell information to a list of cells
             Set<CellPerception> cells = agentState.memory2Cells();
             // Create a fictive environment with these cells and the object that manages moves
-            VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells, movementManager);
+            VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells, new MovementManager());
             // Create a path finder object that can search the shortest paths to specific destinations in the fictive
             // environment
             PathFinder pathFinder = new PathFinder(virtualEnvironment);

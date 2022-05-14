@@ -1,0 +1,607 @@
+width 16
+height 16
+
+nbAgents 4
+environment.world.agent.Agent
+nbArgs 5
+Integer 1
+Integer 2
+Integer 6
+Integer 2
+String "Mu"
+environment.world.agent.Agent
+nbArgs 5
+Integer 1
+Integer 6
+Integer 6
+Integer 3
+String "Tau"
+environment.world.agent.Agent
+nbArgs 5
+Integer 8
+Integer 2
+Integer 6
+Integer 4
+String "Rho"
+environment.world.agent.Agent
+nbArgs 5
+Integer 8
+Integer 13
+Integer 6
+Integer 13
+String "Pi"
+
+nbPackets 37
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 2
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 3
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 8
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 9
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 0
+Integer 15
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 1
+Integer 15
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 2
+Integer 15
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 3
+Integer 3
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 7
+Integer 15
+String "magenta"
+environment.world.packet.Packet
+nbArgs 3
+Integer 8
+Integer 15
+String "magenta"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 6
+String "magenta"
+environment.world.packet.Packet
+nbArgs 3
+Integer 9
+Integer 7
+String "magenta"
+environment.world.packet.Packet
+nbArgs 3
+Integer 10
+Integer 2
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 10
+Integer 3
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 10
+Integer 6
+String "magenta"
+environment.world.packet.Packet
+nbArgs 3
+Integer 10
+Integer 7
+String "magenta"
+environment.world.packet.Packet
+nbArgs 3
+Integer 10
+Integer 15
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 2
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 3
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 14
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 11
+Integer 15
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 12
+Integer 10
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 12
+Integer 11
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 13
+Integer 10
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 13
+Integer 11
+String "red"
+environment.world.packet.Packet
+nbArgs 3
+Integer 13
+Integer 14
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 13
+Integer 15
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 14
+Integer 0
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 14
+Integer 2
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 14
+Integer 3
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 14
+Integer 14
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 14
+Integer 15
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 15
+Integer 0
+String "green"
+environment.world.packet.Packet
+nbArgs 3
+Integer 15
+Integer 2
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 15
+Integer 3
+String "blue"
+environment.world.packet.Packet
+nbArgs 3
+Integer 15
+Integer 12
+String "magenta"
+environment.world.packet.Packet
+nbArgs 3
+Integer 15
+Integer 13
+String "magenta"
+
+nbDestinations 4
+environment.world.destination.Destination
+nbArgs 3
+Integer 0
+Integer 0
+String "blue"
+environment.world.destination.Destination
+nbArgs 3
+Integer 0
+Integer 14
+String "red"
+environment.world.destination.Destination
+nbArgs 3
+Integer 1
+Integer 0
+String "magenta"
+environment.world.destination.Destination
+nbArgs 3
+Integer 12
+Integer 0
+String "green"
+
+nbWalls 55
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 0
+Integer 4
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 0
+Integer 5
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 2
+Integer 4
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 2
+Integer 5
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 3
+Integer 4
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 3
+Integer 5
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 3
+Integer 6
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 3
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 3
+Integer 10
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 3
+Integer 11
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 3
+Integer 12
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 3
+Integer 14
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 3
+Integer 15
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 4
+Integer 4
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 4
+Integer 5
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 4
+Integer 6
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 4
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 4
+Integer 10
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 4
+Integer 11
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 4
+Integer 12
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 4
+Integer 14
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 4
+Integer 15
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 0
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 2
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 4
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 5
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 10
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 11
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 12
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 14
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 5
+Integer 15
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 6
+Integer 0
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 6
+Integer 2
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 6
+Integer 4
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 6
+Integer 10
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 7
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 7
+Integer 9
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 7
+Integer 10
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 8
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 8
+Integer 9
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 9
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 9
+Integer 9
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 10
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 10
+Integer 9
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 11
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 12
+Integer 6
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 12
+Integer 7
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 12
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 14
+Integer 6
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 14
+Integer 7
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 14
+Integer 8
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 15
+Integer 6
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 15
+Integer 7
+environment.world.wall.GlassWall
+nbArgs 2
+Integer 15
+Integer 8
+
+nbEnergyStations 0
+
+nbPacketGenerators 3
+environment.world.generator.PacketGenerator
+nbArgs 6
+Integer 0
+Integer 11
+Integer 24
+String "green"
+Integer 10
+Integer 20
+environment.world.generator.PacketGenerator
+nbArgs 6
+Integer 5
+Integer 6
+Integer 23
+String "magenta"
+Integer 20
+Integer 10
+environment.world.generator.PacketGenerator
+nbArgs 6
+Integer 8
+Integer 10
+Integer 25
+String "red"
+Integer 20
+Integer 20
+
+nbConveyors 19
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 1
+Integer 4
+Integer 1
+Integer 0
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 1
+Integer 5
+Integer 0
+Integer 0
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 3
+Integer 7
+Integer 21
+Integer 3
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 3
+Integer 9
+Integer 5
+Integer 1
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 3
+Integer 13
+Integer 12
+Integer 3
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 4
+Integer 7
+Integer 22
+Integer 3
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 4
+Integer 9
+Integer 6
+Integer 1
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 4
+Integer 13
+Integer 11
+Integer 3
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 5
+Integer 1
+Integer 18
+Integer 3
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 5
+Integer 3
+Integer 19
+Integer 1
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 5
+Integer 9
+Integer 7
+Integer 1
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 5
+Integer 13
+Integer 10
+Integer 3
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 6
+Integer 1
+Integer 17
+Integer 3
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 6
+Integer 3
+Integer 20
+Integer 1
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 6
+Integer 8
+Integer 9
+Integer 0
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 6
+Integer 9
+Integer 8
+Integer 0
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 13
+Integer 6
+Integer 16
+Integer 0
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 13
+Integer 7
+Integer 15
+Integer 0
+environment.world.conveyor.Conveyor
+nbArgs 4
+Integer 13
+Integer 8
+Integer 14
+Integer 0
