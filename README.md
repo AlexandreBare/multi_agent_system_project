@@ -64,7 +64,6 @@ When running the code, you can choose
   - basic-2-vision
   - basic-3-color
   - basic-4-complexity
-  - task-delegation
 - distance_greedy: offers an efficient solution for the following environments
   - basic-1-tutorial
   - basic-2-vision
