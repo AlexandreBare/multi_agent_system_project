@@ -54,3 +54,17 @@ Lastly, if you want to adhere to the coding style of the project, you can run th
 simply choose the _environment editor_ in the main menu of the application to edit or create new environments.
 - After (or during) a normal run, you can export the monitored actions of agents in your run together with some metadata about the run. Navigate to the _Actions_ window and click on the _export_ button. For batch runs this is done automatically by specifying the output file before starting the runs.
 
+## Solution
+This code contains the final solution to the MAS Project. If you are instead interested in the intermediate solutions 
+mentioned in the paper, please refer to the other folder in the zip file you received.
+
+When running the code
+- choose task_coordination: this implementation offers an efficient solution for the following environments
+  - basic-1-tutorial
+  - basic-2-vision
+  - basic-3-color
+  - basic-4-complexity
+  - energy-1
+  - energy-2
+  - task-delegation
+  - maze (very inefficient)
