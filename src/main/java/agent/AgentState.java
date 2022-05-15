@@ -1,6 +1,7 @@
 package agent;
 
 import java.awt.Color;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -299,6 +300,16 @@ public interface AgentState {
     Set<CellPerception> memory2Cells();
 
     Set<CellPerception> memory2CellsWithoutPackets();
+
+    /**
+     * Retrieve the representations from all memory fragments excluding the representations matching
+     * one of the given coordinates.
+     *
+     * @param excludedCoordinates
+     * @return A set of cell perceptions
+     */
+    Set<CellPerception> memory2CellsExcludingCoordinates(Collection<Coordinate> excludedCoordinates);
+
     /**
      * Retrieve the representations and potential colors from a given memory key and create cell perception instances
      * out of them.
