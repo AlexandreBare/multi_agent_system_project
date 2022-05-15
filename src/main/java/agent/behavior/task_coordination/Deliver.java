@@ -26,6 +26,7 @@ public class Deliver extends Behavior {
 
     @Override
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
+        
 
     }
 

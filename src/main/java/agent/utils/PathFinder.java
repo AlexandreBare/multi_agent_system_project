@@ -95,11 +95,8 @@ public class PathFinder {
 
         nextStates.add(state); // Add first the initial state to the queue of next states to browse
 
-        while(true){
-            if (nextStates.isEmpty()) { // If no more next states are available for the agent,
-                return new ArrayList<>(); // no path was found
-            }
-
+        while(!nextStates.isEmpty()){
+            
             state = nextStates.poll(); // Retrieve and remove the first state in the priority queue
             if (state.isTerminal()) // If the agent is in a terminal state
                 return state.getPaths(); // return the optimal path found
@@ -132,5 +129,6 @@ public class PathFinder {
                 }
             }
         }
+        return new ArrayList<>();
     }
 }
