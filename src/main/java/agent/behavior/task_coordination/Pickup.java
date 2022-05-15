@@ -244,8 +244,8 @@ public class Pickup extends Behavior {
                     }
                 }
                 else{
-                    if(coloredDestinationCoordinatesMap.get(agentColor) != null && agentColor != null) {
-                        crucialPacketsBlockingDelivery(agentState, coloredDestinationCoordinatesMap.get(agentColor));
+                    if(agentColor != null && coloredDestinationCoordinatesMap.get(MyColor.getName(agentColor)) != null ) {
+                        crucialPacketsBlockingDelivery(agentState, coloredDestinationCoordinatesMap.get(MyColor.getName(agentColor)));
                     }
                 }
             }
