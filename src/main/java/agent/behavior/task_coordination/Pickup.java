@@ -7,6 +7,7 @@ import agent.behavior.Behavior;
 import agent.utils.MovementManager;
 import agent.utils.PathFinder;
 import agent.utils.VirtualEnvironment;
+import com.google.common.collect.Table;
 import environment.CellPerception;
 import environment.Coordinate;
 import environment.Mail;
@@ -405,26 +406,50 @@ public class Pickup extends Behavior {
 
         // check path for packets
         List<Coordinate> packetsInShortestPath = new ArrayList<Coordinate>();
-        List<Coordinate> packets = getPackets();
+        List<Coordinate> packets = getPackets(agentState);
         for (Coordinate pathCell : shortestPath.get(0)){
             if (packets.contains(pathCell))
                 packetsInShortestPath.add(pathCell);
         }
 
-        // check each packet if blocking
+        // check each packet if it is blocking
+        for (Coordinate packetInPath: packetsInShortestPath){
+            if (checkIfPacketIsBlocking(agentState, packetInPath, packetsInShortestPath, agentDestinationCells, agentCell)){
+                // putt blocking packets in memory
+                // todo: check if it is not already pressent in memory or in sent memory
+                agentState.append2Memory(crucialCoordinateMemory,packetInPath.toString());
+            }
+        }
+
     }
 
-    private boolean checkIfPacketIsBlocking(Coordinate packet, Coordinate[] packets){
-        // make environment without packets, add packet;
+    private boolean checkIfPacketIsBlocking(AgentState agentState, Coordinate packet, List<Coordinate> packets,
+                                            Set<CellPerception[]> agentDestinationCells, CellPerception agentCell){
 
-        // calculate path to destination
+        // make environment without packets, but with packet;
+        packets.remove(packet);
+        Set<CellPerception> cells = agentState.memory2CellsWithoutPackets();
+        VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells,new MovementManager());
+
+        // setup pathfinder
+        // create pathfinder
+        PathFinder pathFinder = new PathFinder(virtualEnvironment);
+
+        // calculate path to the shortest destination
+        List<List<Coordinate>> shortestPath = pathFinder.astar(agentCell, agentDestinationCells);
 
         // return path.isEmpty()
 
-        return false;
+        return shortestPath.isEmpty();
     }
 
-    private List<Coordinate> getPackets(){
-        return null;
+    private List<Coordinate> getPackets(AgentState agentState){
+        List<Coordinate> packets = new ArrayList<>();
+        Set<String> packetKeys = agentState.getMemoryFragmentKeysContaining(PacketRep.class.toString());
+        for (String key : packetKeys){
+            String data = agentState.getMemoryFragment(key);
+            packets.addAll(Coordinate.string2Coordinates(data));
+        }
+        return packets;
     }
 }
