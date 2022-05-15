@@ -385,7 +385,7 @@ public class Pickup extends Behavior {
 
     private void crucialPacketsBlockingDelivery(AgentState agentState, List<Coordinate> destinationCoordinatesList){
         // make environment without packets
-        System.out.println("something: " + destinationCoordinatesList);
+        System.out.println(agentState.getName() + " finds: " + destinationCoordinatesList);
         Set<CellPerception> cells = agentState.memory2CellsWithoutPackets();
         // replace packages by empty cells
         List<Coordinate> packets = getPackets(agentState);
