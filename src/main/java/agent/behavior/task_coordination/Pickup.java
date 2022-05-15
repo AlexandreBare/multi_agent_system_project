@@ -131,11 +131,12 @@ public class Pickup extends Behavior {
             CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0, 0);
 
             for (var coordinate: priorityCoordinates) {
-                System.out.println(coordinate);
-                agentDestinationCells.add(new CellPerception[]{
-                   virtualEnvironment.getCell(coordinate)
-                });
+                var virtualCell = virtualEnvironment.getCell(coordinate);
+                if (virtualCell != null) {
+                    agentDestinationCells.add(new CellPerception[]{virtualCell});
+                }
             }
+
             if(!agentDestinationCells.isEmpty()) {
                 List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
                 if (!shortestPaths.isEmpty()) {
