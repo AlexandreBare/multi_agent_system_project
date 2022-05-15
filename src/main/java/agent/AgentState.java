@@ -328,7 +328,7 @@ public interface AgentState {
      *
      * @return  true if the memory fragment given by the key contains the given data
      */
-    boolean memoryfragmentContains(String key, Coordinate coordinate);
+    boolean memoryFragmentContains(String key, Coordinate coordinate);
 
 
     /**
