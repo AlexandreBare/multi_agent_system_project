@@ -40,6 +40,8 @@ abstract public class Behavior {
      * related. This does not include answering messages, only sending them.
      */
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
+        System.out.println(agentCommunication.getMessages());
+        System.out.println(agentState.getMemoryFragment(crucialCoordinateMemory));
         if(!agentState.getMemoryFragmentKeys().contains(crucialCoordinateMemory)){
             return;
         }
