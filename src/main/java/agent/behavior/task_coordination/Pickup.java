@@ -427,8 +427,9 @@ public class Pickup extends Behavior {
                                             Set<CellPerception[]> agentDestinationCells, CellPerception agentCell){
 
         // make environment without packets, but with packet;
-        packets.remove(packet);
-        Set<CellPerception> cells = agentState.memory2CellsWithoutPackets();
+        List<Coordinate> packetsExcludingPacket = packets;
+        packetsExcludingPacket.remove(packet);
+        Set<CellPerception> cells = agentState.memory2CellsExcludingCoordinates(packetsExcludingPacket);
         VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells,new MovementManager());
 
         // setup pathfinder
