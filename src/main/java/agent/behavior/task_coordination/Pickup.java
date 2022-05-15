@@ -18,6 +18,7 @@ import environment.world.packet.PacketRep;
 import util.MyColor;
 
 import java.awt.*;
+import java.sql.Array;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -143,6 +144,12 @@ public class Pickup extends Behavior {
                     List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
                     if (!shortestPath2Packet.isEmpty()) {
                         agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPath2Packet));
+                        ArrayList<Coordinate> invertedPath = new ArrayList<>(shortestPath2Packet);
+                        Collections.reverse(invertedPath);
+                        System.out.println("PathSize: " + invertedPath.size());
+                        int pathIndex = Math.min(5, invertedPath.size());
+                        List<Coordinate> shortInvertedPath = new ArrayList<>(invertedPath.subList(0, pathIndex));
+                        agentState.addMemoryFragment("ShortestPath2Gather", Coordinate.coordinates2String(shortInvertedPath));
                     }
                 }
             }
