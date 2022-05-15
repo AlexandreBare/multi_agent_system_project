@@ -178,10 +178,14 @@ public class Pickup extends Behavior {
                     String memoryFragment = agentState.getMemoryFragment(packetKey);
                     List<Coordinate> coordinatesList = Coordinate.string2Coordinates(memoryFragment);
                     coloredPacketCoordinatesMap.put(packetColor, coordinatesList);
+
+                    memoryFragment = agentState.getMemoryFragment(destinationKey);
+                    coordinatesList = Coordinate.string2Coordinates(memoryFragment);
+                    coloredDestinationCoordinatesMap.put(packetColor, coordinatesList);
                 }
             }
 
-            // If the agent is not black, retrieve all memory keys where destinations that match the agent's color are stored
+          /*  // If the agent is not black, retrieve all memory keys where destinations that match the agent's color are stored
             // Otherwise, retrieve all memory keys where destinations are stored
             subkey = DestinationRep.class.toString();
             if (agentColor != null){
@@ -196,7 +200,7 @@ public class Pickup extends Behavior {
                 List<Coordinate> coordinatesList = Coordinate.string2Coordinates(memoryFragment);
                 coloredDestinationCoordinatesMap.put(destinationColor, coordinatesList);
             }
-
+*/
 
             // Run A* to find one of the shortest paths to the closest packet of which a destination is known
             // Convert all stored cell information to a list of cells
