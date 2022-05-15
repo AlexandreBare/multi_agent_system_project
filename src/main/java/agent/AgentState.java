@@ -321,6 +321,17 @@ public interface AgentState {
     Set<CellPerception> memoryKey2Cells(String key);
 
     /**
+     * Checks if the memory fragment of the given memoryKey contains the given data
+     *
+     * @param key The key to the memory fragment that needs to be checked
+     * @param coordinate the coordinate that needs to be checked for
+     *
+     * @return  true if the memory fragment given by the key contains the given data
+     */
+    boolean memoryfragmentContains(String key, Coordinate coordinate);
+
+
+    /**
      * Get the current number of memory fragments in memory of this agent.
      */
     int getNbMemoryFragments();

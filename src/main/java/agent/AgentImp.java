@@ -1164,6 +1164,15 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         return cells;
     }
 
+
+    public boolean memoryFragmentContains(String key, Coordinate coordinate) {
+        String memory = getMemoryFragment(key);
+        if (memory == null)
+            return false;
+        List<Coordinate> coordinates = Coordinate.string2Coordinates(getMemoryFragment(key));
+        return coordinates.contains(coordinate);
+    }
+
     /**
      * Retrieve the representations and potential colors from a given memory key and create cell perception instances
      * out of them.
