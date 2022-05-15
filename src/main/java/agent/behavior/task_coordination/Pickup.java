@@ -385,7 +385,6 @@ public class Pickup extends Behavior {
 
     private void crucialPacketsBlockingDelivery(AgentState agentState, List<Coordinate> destinationCoordinatesList){
         // make environment without packets
-        System.out.println("something: " + destinationCoordinatesList);
         Set<CellPerception> cells = agentState.memory2CellsWithoutPackets();
         // replace packages by empty cells
         List<Coordinate> packets = getPackets(agentState);
@@ -423,7 +422,6 @@ public class Pickup extends Behavior {
             if (packets.contains(pathCell))
                 packetsInShortestPath.add(pathCell);
         }
-        System.out.println(packetsInShortestPath);
 
         // check each packet if it is blocking
         for (Coordinate packetInPath: packetsInShortestPath){

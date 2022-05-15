@@ -40,10 +40,11 @@ abstract public class Behavior {
      * related. This does not include answering messages, only sending them.
      */
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
-        System.out.println(agentCommunication.getMessages());
-        System.out.println(agentState.getMemoryFragment(crucialCoordinateMemory));
         if(!agentState.getMemoryFragmentKeys().contains(crucialCoordinateMemory)){
-            return;
+            agentState.addMemoryFragment(crucialCoordinateMemory, "null");
+        }
+        if(!agentState.getMemoryFragmentKeys().contains(sendCrucialCoordinates)){
+            agentState.addMemoryFragment(sendCrucialCoordinates, "null");
         }
         List<AgentRep> agentsInRange = getAgentsInRange(agentState);
 
@@ -63,7 +64,14 @@ abstract public class Behavior {
 
         setPriorityCoordinates(agentState, agentCommunication);
         removePacketFromPerception(agentState, agentCommunication);
-
+        System.out.println(agentState.getName() + " Crucial Coordinates: " + agentState.getMemoryFragment(crucialCoordinateMemory));
+        System.out.println(agentState.getName() + " Sent Coordinates: " + agentState.getMemoryFragment(sendCrucialCoordinates));
+        if(agentCommunication.getNbMessages() != 0)
+            System.out.println("---------- incomming messages for: " + agentState.getName()+ "  ----------");
+        for (int i = 0; i <  agentCommunication.getNbMessages(); i++){
+            // pop the first message
+            System.out.println(agentState.getName() + ", " + i + ": " + agentCommunication.getMessage(i));
+        }
     }
 
     /**
@@ -78,7 +86,10 @@ abstract public class Behavior {
             for(int j = 0; j < perception.getHeight(); j++) {
                 CellPerception cell = perception.getCellAt(i, j);
                 if(cell.containsAgent()){
-                    agentsInRange.add(cell.getAgentRepresentation().get());
+                    AgentRep agentRep = cell.getAgentRepresentation().get();
+                    if(!agentRep.getName().equals(agentState.getName())) {
+                        agentsInRange.add(cell.getAgentRepresentation().get());
+                    }
                 }
             }
         }
@@ -128,13 +139,21 @@ abstract public class Behavior {
         List<Coordinate> crucialCoordinates = Coordinate.string2Coordinates(agentState.getMemoryFragment(crucialCoordinateMemory));
         agentState.removeMemoryFragment(crucialCoordinateMemory);
         crucialCoordinates.removeAll(sentCoordinates);
-        agentState.addMemoryFragment(crucialCoordinateMemory, Coordinate.coordinates2String(crucialCoordinates));
+        String coordinateString = Coordinate.coordinates2String(crucialCoordinates);
+        if(coordinateString.equals("")){
+            coordinateString = "null";
+        }
+        agentState.addMemoryFragment(crucialCoordinateMemory, coordinateString);
 
         if(addToSent) {
             List<Coordinate> memorySendCoordinates = Coordinate.string2Coordinates(agentState.getMemoryFragment(sendCrucialCoordinates));
             agentState.removeMemoryFragment(sendCrucialCoordinates);
             memorySendCoordinates.addAll(sentCoordinates);
-            agentState.addMemoryFragment(sendCrucialCoordinates, Coordinate.coordinates2String(memorySendCoordinates));
+            String sentCoordinateString = Coordinate.coordinates2String(memorySendCoordinates);
+            if(sentCoordinateString.equals("")){
+                sentCoordinateString = "null";
+            }
+            agentState.addMemoryFragment(sendCrucialCoordinates, sentCoordinateString);
         }
     }
 
