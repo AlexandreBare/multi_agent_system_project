@@ -122,6 +122,30 @@ public class Pickup extends Behavior {
             }
         }
 
+        // Prioritise high impact packets
+        if (!priorityCoordinates.isEmpty()) {
+            // Pathfinding setup
+            Set<CellPerception> environmentKnowledge = agentState.memory2Cells();
+            VirtualEnvironment virtualEnvironment = new VirtualEnvironment(environmentKnowledge, new MovementManager());
+            PathFinder pathFinder = new PathFinder(virtualEnvironment);
+            Set<CellPerception[]> agentDestinationCells = new HashSet<>();
+            CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0, 0);
+
+            for (var coordinate: priorityCoordinates) {
+                agentDestinationCells.add(new CellPerception[]{
+                   virtualEnvironment.getCell(coordinate)
+                });
+            }
+
+            List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
+            if (!shortestPaths.isEmpty()) {
+                List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
+                if(!shortestPath2Packet.isEmpty()) {
+                    agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPath2Packet));
+                }
+            }
+        }
+
         // Run A* to find one of the shortest paths to the closest packet of which a destination is known if no path has
         // been computed yet.
         if (!agentState.getMemoryFragmentKeys().contains("ShortestPath2Packet")){
