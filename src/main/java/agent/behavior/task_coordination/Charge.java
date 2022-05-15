@@ -12,11 +12,6 @@ public class Charge extends Behavior {
     Random rand = new Random(42);
 
 
-    @Override
-    public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
-
-    }
-
 
     @Override
     public void act(AgentState agentState, AgentAction agentAction) {

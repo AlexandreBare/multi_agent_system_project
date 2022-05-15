@@ -16,12 +16,6 @@ public class FindCharger extends Behavior {
 
 
     @Override
-    public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
-
-    }
-
-
-    @Override
     public void act(AgentState agentState, AgentAction agentAction) {
         MovementManager movementManager = new MovementManager();
 

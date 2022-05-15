@@ -9,6 +9,9 @@ import agent.utils.PathFinder;
 import agent.utils.VirtualEnvironment;
 import environment.CellPerception;
 import environment.Coordinate;
+import environment.Mail;
+import environment.Perception;
+import environment.world.agent.AgentRep;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.PacketRep;
 import util.MyColor;
@@ -24,15 +27,6 @@ public class Pickup extends Behavior {
     Random rand = new Random(42);
     float RANDOM_EXPLORATION_RATE = 0.2f;
     int GATHERING_RADIUS = 2;
-
-    String crucialCoordinateMemory = "crucialCoordinates";
-
-    Set<Coordinate> priorityCoordinates = new HashSet<Coordinate>();
-
-    @Override
-    public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
-        
-    }
 
 
     @Override

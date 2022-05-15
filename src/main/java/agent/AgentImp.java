@@ -76,7 +76,7 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
      * e.g.  "target" -> "3, 4"
      */
     private Map<String, String> memory;
-    private static final int MAX_MEMORY_FRAGMENTS = 10;
+    private static final int MAX_MEMORY_FRAGMENTS = 12;
 
     private final Logger logger = Logger.getLogger(AgentImp.class.getName());
 
