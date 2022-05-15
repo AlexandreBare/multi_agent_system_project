@@ -32,7 +32,7 @@ public class Pickup extends Behavior {
 
     @Override
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
-
+        
     }
 
 
@@ -120,6 +120,30 @@ public class Pickup extends Behavior {
                 // It pushes the agent to continue moving in a direction as close as possible to the last one
                 // but does not strictly force him to do so if it is not possible to go this way.
                 movementManager.sort(lastMove, "ManhattanDistance");
+            }
+        }
+
+        // Prioritise high impact packets
+        if (!priorityCoordinates.isEmpty()) {
+            // Pathfinding setup
+            Set<CellPerception> environmentKnowledge = agentState.memory2Cells();
+            VirtualEnvironment virtualEnvironment = new VirtualEnvironment(environmentKnowledge, new MovementManager());
+            PathFinder pathFinder = new PathFinder(virtualEnvironment);
+            Set<CellPerception[]> agentDestinationCells = new HashSet<>();
+            CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0, 0);
+
+            for (var coordinate: priorityCoordinates) {
+                agentDestinationCells.add(new CellPerception[]{
+                   virtualEnvironment.getCell(coordinate)
+                });
+            }
+
+            List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
+            if (!shortestPaths.isEmpty()) {
+                List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
+                if(!shortestPath2Packet.isEmpty()) {
+                    agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPath2Packet));
+                }
             }
         }
 
