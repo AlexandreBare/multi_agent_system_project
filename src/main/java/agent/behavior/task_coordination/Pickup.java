@@ -216,8 +216,8 @@ public class Pickup extends Behavior {
             Set<CellPerception[]> agentDestinationCells = new HashSet<>();
             for(var packetEntry: coloredPacketCoordinatesMap.entrySet()){
                 String color = packetEntry.getKey();
+                List<Coordinate> destinationCoordinatesList = coloredDestinationCoordinatesMap.get(color);
                 for (Coordinate packetCoordinates: packetEntry.getValue()){
-                    List<Coordinate> destinationCoordinatesList = coloredDestinationCoordinatesMap.get(color);
                     for(Coordinate destinationCoordinates: destinationCoordinatesList){
                         // Get the fictive cells from the fictive environment of the packets we know
                         agentDestinationCells.add(new CellPerception[]{
@@ -244,9 +244,10 @@ public class Pickup extends Behavior {
                     if(!shortestPath2Destination.isEmpty()) { // only a non empty path is interesting
                         agentState.removeMemoryFragment("ShortestPath2Gather");
                         agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(1)));
-
-
                     }
+                }
+                else{
+                    crucialPacketsBlockingDelivery(agentState,coloredDestinationCoordinatesMap.get(agentColor));
                 }
             }
         }
