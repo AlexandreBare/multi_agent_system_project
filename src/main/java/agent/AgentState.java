@@ -298,6 +298,7 @@ public interface AgentState {
      */
     Set<CellPerception> memory2Cells();
 
+    Set<CellPerception> memory2CellsWithoutPackets();
     /**
      * Retrieve the representations and potential colors from a given memory key and create cell perception instances
      * out of them.
