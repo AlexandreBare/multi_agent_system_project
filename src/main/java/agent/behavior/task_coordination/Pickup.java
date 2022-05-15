@@ -25,6 +25,8 @@ public class Pickup extends Behavior {
     float RANDOM_EXPLORATION_RATE = 0.2f;
     int GATHERING_RADIUS = 2;
 
+    String crucialCoordinateMemory = "crucialCoordinates";
+
     @Override
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
 
@@ -350,5 +352,9 @@ public class Pickup extends Behavior {
 
         // Skip turn
         agentAction.skip();
+    }
+
+    private void crucialPacketsBlockingDelivery(){
+
     }
 }

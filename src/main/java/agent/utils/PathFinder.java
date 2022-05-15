@@ -96,7 +96,7 @@ public class PathFinder {
         nextStates.add(state); // Add first the initial state to the queue of next states to browse
 
         while(!nextStates.isEmpty()){
-            
+
             state = nextStates.poll(); // Retrieve and remove the first state in the priority queue
             if (state.isTerminal()) // If the agent is in a terminal state
                 return state.getPaths(); // return the optimal path found

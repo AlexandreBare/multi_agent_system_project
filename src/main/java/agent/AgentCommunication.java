@@ -1,7 +1,9 @@
 package agent;
 
 import java.util.Collection;
+import java.util.Set;
 
+import environment.Coordinate;
 import environment.Mail;
 import environment.world.agent.AgentRep;
 
@@ -59,4 +61,6 @@ public interface AgentCommunication {
      * Clear the incoming message queue.
      */
     void clearMessages();
+
+    Set<Coordinate> getPriorityCoordinates();
 }
