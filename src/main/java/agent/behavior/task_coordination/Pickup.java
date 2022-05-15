@@ -414,7 +414,8 @@ public class Pickup extends Behavior {
         for (Coordinate packetInPath: packetsInShortestPath){
             if (checkIfPacketIsBlocking(agentState, packetInPath, packetsInShortestPath, agentDestinationCells, agentCell)){
                 // putt blocking packets in memory
-                // todo: check if it is not already pressent in memory or in sent memory
+                if(!agentState.memoryFragmentContains(crucialCoordinateMemory, packetInPath) &&
+                        !agentState.memoryFragmentContains(sendCrucialCoordinates, packetInPath))
                 agentState.append2Memory(crucialCoordinateMemory,packetInPath.toString());
             }
         }
