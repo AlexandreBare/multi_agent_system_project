@@ -385,8 +385,17 @@ public class Pickup extends Behavior {
 
     private void crucialPacketsBlockingDelivery(AgentState agentState, List<Coordinate> destinationCoordinatesList){
         // make environment without packets
+        System.out.println("something: " + destinationCoordinatesList);
         Set<CellPerception> cells = agentState.memory2CellsWithoutPackets();
+        // replace packages by empty cells
+        List<Coordinate> packets = getPackets(agentState);
+        Set<CellPerception> additionalEmptyCells = new HashSet<>();
+        for (Coordinate packet : packets){
+            additionalEmptyCells.add(new CellPerception(packet));
+        }
+        cells.addAll(additionalEmptyCells);
         VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells,new MovementManager());
+
 
         // setup pathfinder
         // create pathfinder
@@ -401,16 +410,20 @@ public class Pickup extends Behavior {
 
         // calculate path to the shortest destination
         List<List<Coordinate>> shortestPath = pathFinder.astar(agentCell, agentDestinationCells);
-        if (shortestPath.isEmpty())
-            return; //TODO: what moet je doen als er geen path naar de destination bestaat en het niet de fout is van de packets
+
+        if (shortestPath.isEmpty()){
+            return;
+        }
+             //TODO: what moet je doen als er geen path naar de destination bestaat en het niet de fout is van de packets
 
         // check path for packets
         List<Coordinate> packetsInShortestPath = new ArrayList<Coordinate>();
-        List<Coordinate> packets = getPackets(agentState);
+
         for (Coordinate pathCell : shortestPath.get(0)){
             if (packets.contains(pathCell))
                 packetsInShortestPath.add(pathCell);
         }
+        System.out.println(packetsInShortestPath);
 
         // check each packet if it is blocking
         for (Coordinate packetInPath: packetsInShortestPath){
@@ -431,7 +444,14 @@ public class Pickup extends Behavior {
         List<Coordinate> packetsExcludingPacket = new ArrayList<>();
         packetsExcludingPacket.addAll(packets);
         packetsExcludingPacket.remove(packet);
+        List<Coordinate> allPackets = getPackets(agentState);
+        Set<CellPerception> additionalEmptyCells = new HashSet<>();
+        for (Coordinate packetCoordinate : allPackets) {
+            if (packetsExcludingPacket.contains(packetCoordinate))
+                additionalEmptyCells.add(new CellPerception(packetCoordinate));
+        }
         Set<CellPerception> cells = agentState.memory2CellsExcludingCoordinates(packetsExcludingPacket);
+        cells.addAll(additionalEmptyCells);
         VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells,new MovementManager());
 
         // setup pathfinder
