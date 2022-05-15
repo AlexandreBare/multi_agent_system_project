@@ -193,7 +193,9 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         messages.clear();
     }
 
-    
+    public Set<Coordinate> getPriorityCoordinates(){
+        return new HashSet<Coordinate>();
+    }
 
 
     // ========================

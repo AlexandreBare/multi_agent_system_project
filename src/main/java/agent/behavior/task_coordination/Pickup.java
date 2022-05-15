@@ -31,7 +31,7 @@ public class Pickup extends Behavior {
 
     @Override
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
-
+        
     }
 
 
