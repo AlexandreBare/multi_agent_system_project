@@ -27,6 +27,8 @@ public class Pickup extends Behavior {
 
     String crucialCoordinateMemory = "crucialCoordinates";
 
+    Set<Coordinate> priorityCoordinates = new HashSet<Coordinate>();
+
     @Override
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
 
