@@ -31,9 +31,9 @@ abstract public class Behavior {
 
     protected Behavior() {}
 
-    String crucialCoordinateMemory = "crucialCoordinates";
-    String sendCrucialCoordinates = "send";
-    List<Coordinate> priorityCoordinates = new ArrayList<Coordinate>();
+    public String crucialCoordinateMemory = "crucialCoordinates";
+    public String sendCrucialCoordinates = "send";
+    public List<Coordinate> priorityCoordinates = new ArrayList<Coordinate>();
 
     /**
      * This method handles the actions of the behavior that are communication

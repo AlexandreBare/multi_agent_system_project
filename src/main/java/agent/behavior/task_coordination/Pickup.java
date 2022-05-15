@@ -7,6 +7,7 @@ import agent.behavior.Behavior;
 import agent.utils.MovementManager;
 import agent.utils.PathFinder;
 import agent.utils.VirtualEnvironment;
+import com.google.common.collect.Table;
 import environment.CellPerception;
 import environment.Coordinate;
 import environment.Mail;
@@ -116,6 +117,30 @@ public class Pickup extends Behavior {
             }
         }
 
+        // Prioritise high impact packets
+        if (!priorityCoordinates.isEmpty()) {
+            // Pathfinding setup
+            Set<CellPerception> environmentKnowledge = agentState.memory2Cells();
+            VirtualEnvironment virtualEnvironment = new VirtualEnvironment(environmentKnowledge, new MovementManager());
+            PathFinder pathFinder = new PathFinder(virtualEnvironment);
+            Set<CellPerception[]> agentDestinationCells = new HashSet<>();
+            CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0, 0);
+
+            for (var coordinate: priorityCoordinates) {
+                agentDestinationCells.add(new CellPerception[]{
+                   virtualEnvironment.getCell(coordinate)
+                });
+            }
+
+            List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
+            if (!shortestPaths.isEmpty()) {
+                List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
+                if(!shortestPath2Packet.isEmpty()) {
+                    agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPath2Packet));
+                }
+            }
+        }
+
         // Run A* to find one of the shortest paths to the closest packet of which a destination is known if no path has
         // been computed yet.
         if (!agentState.getMemoryFragmentKeys().contains("ShortestPath2Packet")){
@@ -146,10 +171,14 @@ public class Pickup extends Behavior {
                     String memoryFragment = agentState.getMemoryFragment(packetKey);
                     List<Coordinate> coordinatesList = Coordinate.string2Coordinates(memoryFragment);
                     coloredPacketCoordinatesMap.put(packetColor, coordinatesList);
+
+                    memoryFragment = agentState.getMemoryFragment(destinationKey);
+                    coordinatesList = Coordinate.string2Coordinates(memoryFragment);
+                    coloredDestinationCoordinatesMap.put(packetColor, coordinatesList);
                 }
             }
 
-            // If the agent is not black, retrieve all memory keys where destinations that match the agent's color are stored
+          /*  // If the agent is not black, retrieve all memory keys where destinations that match the agent's color are stored
             // Otherwise, retrieve all memory keys where destinations are stored
             subkey = DestinationRep.class.toString();
             if (agentColor != null){
@@ -164,7 +193,7 @@ public class Pickup extends Behavior {
                 List<Coordinate> coordinatesList = Coordinate.string2Coordinates(memoryFragment);
                 coloredDestinationCoordinatesMap.put(destinationColor, coordinatesList);
             }
-
+*/
 
             // Run A* to find one of the shortest paths to the closest packet of which a destination is known
             // Convert all stored cell information to a list of cells
@@ -184,8 +213,8 @@ public class Pickup extends Behavior {
             Set<CellPerception[]> agentDestinationCells = new HashSet<>();
             for(var packetEntry: coloredPacketCoordinatesMap.entrySet()){
                 String color = packetEntry.getKey();
+                List<Coordinate> destinationCoordinatesList = coloredDestinationCoordinatesMap.get(color);
                 for (Coordinate packetCoordinates: packetEntry.getValue()){
-                    List<Coordinate> destinationCoordinatesList = coloredDestinationCoordinatesMap.get(color);
                     for(Coordinate destinationCoordinates: destinationCoordinatesList){
                         // Get the fictive cells from the fictive environment of the packets we know
                         agentDestinationCells.add(new CellPerception[]{
@@ -212,9 +241,10 @@ public class Pickup extends Behavior {
                     if(!shortestPath2Destination.isEmpty()) { // only a non empty path is interesting
                         agentState.removeMemoryFragment("ShortestPath2Gather");
                         agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(1)));
-
-
                     }
+                }
+                else{
+                    crucialPacketsBlockingDelivery(agentState,coloredDestinationCoordinatesMap.get(agentColor));
                 }
             }
         }
@@ -350,7 +380,76 @@ public class Pickup extends Behavior {
         agentAction.skip();
     }
 
-    private void crucialPacketsBlockingDelivery(){
 
+    private void crucialPacketsBlockingDelivery(AgentState agentState, List<Coordinate> destinationCoordinatesList){
+        // make environment without packets
+        Set<CellPerception> cells = agentState.memory2CellsWithoutPackets();
+        VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells,new MovementManager());
+
+        // setup pathfinder
+        // create pathfinder
+        PathFinder pathFinder = new PathFinder(virtualEnvironment);
+        // get cellPerception of agent cell
+        CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0,0);
+        // get list of cellPerceptions of possible destinations
+        Set<CellPerception[]> agentDestinationCells = new HashSet<>();
+        for (Coordinate destination: destinationCoordinatesList){
+            agentDestinationCells.add(new CellPerception[]{virtualEnvironment.getCell(destination)});
+        }
+
+        // calculate path to the shortest destination
+        List<List<Coordinate>> shortestPath = pathFinder.astar(agentCell, agentDestinationCells);
+        if (shortestPath.isEmpty())
+            return; //TODO: what moet je doen als er geen path naar de destination bestaat en het niet de fout is van de packets
+
+        // check path for packets
+        List<Coordinate> packetsInShortestPath = new ArrayList<Coordinate>();
+        List<Coordinate> packets = getPackets(agentState);
+        for (Coordinate pathCell : shortestPath.get(0)){
+            if (packets.contains(pathCell))
+                packetsInShortestPath.add(pathCell);
+        }
+
+        // check each packet if it is blocking
+        for (Coordinate packetInPath: packetsInShortestPath){
+            if (checkIfPacketIsBlocking(agentState, packetInPath, packetsInShortestPath, agentDestinationCells, agentCell)){
+                // putt blocking packets in memory
+                // todo: check if it is not already pressent in memory or in sent memory
+                agentState.append2Memory(crucialCoordinateMemory,packetInPath.toString());
+            }
+        }
+
+    }
+
+    private boolean checkIfPacketIsBlocking(AgentState agentState, Coordinate packet, List<Coordinate> packets,
+                                            Set<CellPerception[]> agentDestinationCells, CellPerception agentCell){
+
+        // make environment without packets, but with packet;
+        List<Coordinate> packetsExcludingPacket = new ArrayList<>();
+        packetsExcludingPacket.addAll(packets);
+        packetsExcludingPacket.remove(packet);
+        Set<CellPerception> cells = agentState.memory2CellsExcludingCoordinates(packetsExcludingPacket);
+        VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells,new MovementManager());
+
+        // setup pathfinder
+        // create pathfinder
+        PathFinder pathFinder = new PathFinder(virtualEnvironment);
+
+        // calculate path to the shortest destination
+        List<List<Coordinate>> shortestPath = pathFinder.astar(agentCell, agentDestinationCells);
+
+        // return path.isEmpty()
+
+        return shortestPath.isEmpty();
+    }
+
+    private List<Coordinate> getPackets(AgentState agentState){
+        List<Coordinate> packets = new ArrayList<>();
+        Set<String> packetKeys = agentState.getMemoryFragmentKeysContaining(PacketRep.class.toString());
+        for (String key : packetKeys){
+            String data = agentState.getMemoryFragment(key);
+            packets.addAll(Coordinate.string2Coordinates(data));
+        }
+        return packets;
     }
 }
