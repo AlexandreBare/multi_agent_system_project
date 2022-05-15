@@ -9,6 +9,7 @@ import agent.utils.PathFinder;
 import agent.utils.VirtualEnvironment;
 import environment.CellPerception;
 import environment.Coordinate;
+import environment.Mail;
 import environment.world.destination.DestinationRep;
 import environment.world.packet.PacketRep;
 import util.MyColor;
@@ -356,7 +357,50 @@ public class Pickup extends Behavior {
         agentAction.skip();
     }
 
-    private void crucialPacketsBlockingDelivery(){
 
+    private void crucialPacketsBlockingDelivery(AgentState agentState, List<Coordinate> destinationCoordinatesList){
+        // make environment without packets
+        Set<CellPerception> cells = agentState.memory2CellsWithoutPackets();
+        VirtualEnvironment virtualEnvironment = new VirtualEnvironment(cells,new MovementManager());
+
+        // setup pathfinder
+        // create pathfinder
+        PathFinder pathFinder = new PathFinder(virtualEnvironment);
+        // get cellPerception of agent cell
+        CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0,0);
+        // get list of cellPerceptions of possible destinations
+        Set<CellPerception[]> agentDestinationCells = new HashSet<>();
+        for (Coordinate destination: destinationCoordinatesList){
+            agentDestinationCells.add(new CellPerception[]{virtualEnvironment.getCell(destination)});
+        }
+
+        // calculate path to the shortest destination
+        List<List<Coordinate>> shortestPath = pathFinder.astar(agentCell, agentDestinationCells);
+        if (shortestPath.isEmpty())
+            return; //TODO: what moet je doen als er geen path naar de destination bestaat en het niet de fout is van de packets
+
+        // check path for packets
+        List<Coordinate> packetsInShortestPath = new ArrayList<Coordinate>();
+        List<Coordinate> packets = getPackets();
+        for (Coordinate pathCell : shortestPath.get(0)){
+            if (packets.contains(pathCell))
+                packetsInShortestPath.add(pathCell);
+        }
+
+        // check each packet if blocking
+    }
+
+    private boolean checkIfPacketIsBlocking(Coordinate packet, Coordinate[] packets){
+        // make environment without packets, add packet;
+
+        // calculate path to destination
+
+        // return path.isEmpty()
+
+        return false;
+    }
+
+    private List<Coordinate> getPackets(){
+        return null;
     }
 }
