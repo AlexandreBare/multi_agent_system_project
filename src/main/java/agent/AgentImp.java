@@ -1138,6 +1138,15 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
         return cells;
     }
 
+    public Set<CellPerception> memory2CellsWithoutPackets(){
+        Set<CellPerception> cells = new HashSet<>();
+        for (String key: this.getMemoryFragmentKeysContaining("Rep")){
+            if (!key.contains(PacketRep.class.toString()))
+                cells.addAll(this.memoryKey2Cells(key));
+        }
+        return cells;
+    }
+
     /**
      * Retrieve the representations and potential colors from a given memory key and create cell perception instances
      * out of them.

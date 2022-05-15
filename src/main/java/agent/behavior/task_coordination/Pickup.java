@@ -214,6 +214,8 @@ public class Pickup extends Behavior {
                     if(!shortestPath2Destination.isEmpty()) { // only a non empty path is interesting
                         agentState.removeMemoryFragment("ShortestPath2Gather");
                         agentState.addMemoryFragment("ShortestPath2Destination", Coordinate.coordinates2String(shortestPaths.get(1)));
+
+
                     }
                 }
             }
