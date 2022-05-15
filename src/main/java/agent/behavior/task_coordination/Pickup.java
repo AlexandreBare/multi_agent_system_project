@@ -77,6 +77,10 @@ public class Pickup extends Behavior {
                             agentState.removeFromMemory(packetCell); // Remove the packet from memory as we will pick it up
                             agentState.removeMemoryFragment("ShortestPath2Packet"); // Remove the path to the packet from memory
                             agentAction.pickPacket(packetCell.getX(), packetCell.getY()); // Pick the packet at hand
+                            Coordinate coordinate = packetCell.getCoordinates();
+                            if(priorityCoordinates.contains(coordinate)){
+                                agentState.append2Memory(crucialCoordinateMemory, coordinate.toString());
+                            }
                             return;
                         }
                     }
@@ -127,16 +131,18 @@ public class Pickup extends Behavior {
             CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0, 0);
 
             for (var coordinate: priorityCoordinates) {
+                System.out.println(coordinate);
                 agentDestinationCells.add(new CellPerception[]{
                    virtualEnvironment.getCell(coordinate)
                 });
             }
-
-            List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
-            if (!shortestPaths.isEmpty()) {
-                List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
-                if(!shortestPath2Packet.isEmpty()) {
-                    agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPath2Packet));
+            if(!agentDestinationCells.isEmpty()) {
+                List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
+                if (!shortestPaths.isEmpty()) {
+                    List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
+                    if (!shortestPath2Packet.isEmpty()) {
+                        agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPath2Packet));
+                    }
                 }
             }
         }
