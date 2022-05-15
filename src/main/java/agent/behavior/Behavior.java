@@ -42,9 +42,6 @@ abstract public class Behavior {
     public void communicate(AgentState agentState, AgentCommunication agentCommunication) {
         System.out.println(agentCommunication.getMessages());
         System.out.println(agentState.getMemoryFragment(crucialCoordinateMemory));
-        if(!agentState.getMemoryFragmentKeys().contains(crucialCoordinateMemory)){
-            return;
-        }
         List<AgentRep> agentsInRange = getAgentsInRange(agentState);
 
         for(AgentRep agent: agentsInRange){
@@ -52,13 +49,15 @@ abstract public class Behavior {
             for(Coordinate coordinate: coordinatesToSend){
                 agentCommunication.sendMessage(agent, coordinate.toString());
             }
-            updateMemoryWithSendCoordinates(coordinatesToSend, agentState, true);
+            if (!coordinatesToSend.isEmpty())
+                updateMemoryWithSendCoordinates(coordinatesToSend, agentState, true);
 
             List<Coordinate> coordinatesToReturn = getCoordinatesToReturn(agent, agentState, agentCommunication);
             for(Coordinate coordinate: coordinatesToReturn){
                 agentCommunication.sendMessage(agent, coordinate.toString());
             }
-            updateMemoryWithSendCoordinates(coordinatesToSend, agentState, false);
+            if (!coordinatesToSend.isEmpty())
+                updateMemoryWithSendCoordinates(coordinatesToSend, agentState, false);
         }
 
         setPriorityCoordinates(agentState, agentCommunication);
@@ -88,6 +87,8 @@ abstract public class Behavior {
     private List<Coordinate> getCoordinatesToSend(AgentRep agent, AgentState agentState, AgentCommunication agentCommunication){
         List<Coordinate> coordinatesToSend = new ArrayList<Coordinate>();
         String crucialCoordinatesString = agentState.getMemoryFragment(crucialCoordinateMemory);
+        if (crucialCoordinatesString == null)
+            return coordinatesToSend;
         List<Coordinate> crucialCoordinates = Coordinate.string2Coordinates(crucialCoordinatesString);
         List<Coordinate> receivedCoordinates = getCoordinatesInMessages(agentState, agentCommunication);
         crucialCoordinates.removeAll(receivedCoordinates);
@@ -125,7 +126,10 @@ abstract public class Behavior {
     }
 
     private void updateMemoryWithSendCoordinates(List<Coordinate> sentCoordinates, AgentState agentState, boolean addToSent){
-        List<Coordinate> crucialCoordinates = Coordinate.string2Coordinates(agentState.getMemoryFragment(crucialCoordinateMemory));
+        String crucialCoordinatesString = agentState.getMemoryFragment(crucialCoordinateMemory);
+        if (crucialCoordinatesString == null)
+            return;
+        List<Coordinate> crucialCoordinates = Coordinate.string2Coordinates(crucialCoordinatesString);
         agentState.removeMemoryFragment(crucialCoordinateMemory);
         crucialCoordinates.removeAll(sentCoordinates);
         agentState.addMemoryFragment(crucialCoordinateMemory, Coordinate.coordinates2String(crucialCoordinates));
