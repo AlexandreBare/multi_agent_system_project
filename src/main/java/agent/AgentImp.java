@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
+import com.google.common.collect.Table;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
@@ -1146,6 +1147,20 @@ abstract public class AgentImp extends ActiveImp implements AgentState, AgentCom
             if (!key.contains(PacketRep.class.toString()))
                 cells.addAll(this.memoryKey2Cells(key));
         }
+        return cells;
+    }
+
+    public Set<CellPerception> memory2CellsExcludingCoordinates(Collection<Coordinate> excludedCoordinates) {
+        Set<CellPerception> cells = new HashSet<>();
+        for (String key: this.getMemoryFragmentKeysContaining("rep")) {
+            for (var cell: this.memoryKey2Cells(key)) {
+                Coordinate cellCoordinate = cell.getCoordinates();
+                if (!excludedCoordinates.contains(cellCoordinate)) {
+                    cells.add(cell);
+                }
+            }
+        }
+
         return cells;
     }
 
