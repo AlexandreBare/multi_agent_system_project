@@ -18,6 +18,7 @@ import environment.world.packet.PacketRep;
 import util.MyColor;
 
 import java.awt.*;
+import java.sql.Array;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,6 +78,10 @@ public class Pickup extends Behavior {
                             agentState.removeFromMemory(packetCell); // Remove the packet from memory as we will pick it up
                             agentState.removeMemoryFragment("ShortestPath2Packet"); // Remove the path to the packet from memory
                             agentAction.pickPacket(packetCell.getX(), packetCell.getY()); // Pick the packet at hand
+                            Coordinate coordinate = packetCell.getCoordinates();
+                            if(priorityCoordinates.contains(coordinate)){
+                                agentState.append2Memory(crucialCoordinateMemory, coordinate.toString());
+                            }
                             return;
                         }
                     }
@@ -127,16 +132,25 @@ public class Pickup extends Behavior {
             CellPerception agentCell = agentState.getPerception().getCellPerceptionOnRelPos(0, 0);
 
             for (var coordinate: priorityCoordinates) {
-                agentDestinationCells.add(new CellPerception[]{
-                   virtualEnvironment.getCell(coordinate)
-                });
+                var virtualCell = virtualEnvironment.getCell(coordinate);
+                if (virtualCell != null) {
+                    agentDestinationCells.add(new CellPerception[]{virtualCell});
+                }
             }
 
-            List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
-            if (!shortestPaths.isEmpty()) {
-                List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
-                if(!shortestPath2Packet.isEmpty()) {
-                    agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPath2Packet));
+            if(!agentDestinationCells.isEmpty()) {
+                List<List<Coordinate>> shortestPaths = pathFinder.astar(agentCell, agentDestinationCells);
+                if (!shortestPaths.isEmpty()) {
+                    List<Coordinate> shortestPath2Packet = shortestPaths.get(0);
+                    if (!shortestPath2Packet.isEmpty()) {
+                        agentState.addMemoryFragment("ShortestPath2Packet", Coordinate.coordinates2String(shortestPath2Packet));
+                        ArrayList<Coordinate> invertedPath = new ArrayList<>(shortestPath2Packet);
+                        Collections.reverse(invertedPath);
+                        System.out.println("PathSize: " + invertedPath.size());
+                        int pathIndex = Math.min(5, invertedPath.size());
+                        List<Coordinate> shortInvertedPath = new ArrayList<>(invertedPath.subList(0, pathIndex));
+                        agentState.addMemoryFragment("ShortestPath2Gather", Coordinate.coordinates2String(shortInvertedPath));
+                    }
                 }
             }
         }
@@ -385,7 +399,6 @@ public class Pickup extends Behavior {
 
     private void crucialPacketsBlockingDelivery(AgentState agentState, List<Coordinate> destinationCoordinatesList){
         // make environment without packets
-        System.out.println(agentState.getName() + " finds: " + destinationCoordinatesList);
         Set<CellPerception> cells = agentState.memory2CellsWithoutPackets();
         // replace packages by empty cells
         List<Coordinate> packets = getPackets(agentState);
@@ -423,7 +436,6 @@ public class Pickup extends Behavior {
             if (packets.contains(pathCell))
                 packetsInShortestPath.add(pathCell);
         }
-        System.out.println(packetsInShortestPath);
 
         // check each packet if it is blocking
         for (Coordinate packetInPath: packetsInShortestPath){
